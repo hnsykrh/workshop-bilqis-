@@ -13,7 +13,7 @@ if [ ! -d "$MYSQL_INCLUDE" ]; then
     echo "Please adjust MYSQL_INCLUDE in this script"
 fi
 
-g++ -std=c++11 *.cpp -o rental_system -I"$MYSQL_INCLUDE" -L"$MYSQL_LIB" -lmysqlcppconn
+g++ -std=c++11 src/*.cpp -o rental_system -I"$MYSQL_INCLUDE" -I"include" -L"$MYSQL_LIB" -lmysqlcppconn
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful!"

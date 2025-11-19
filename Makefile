@@ -15,13 +15,13 @@ CXXFLAGS = -std=c++11 -Wall -Wextra
 # MYSQL_INCLUDE = /usr/include/mysql-cppconn-8
 # MYSQL_LIB = /usr/lib/x86_64-linux-gnu
 
-# Source files
-SOURCES = main.cpp MenuHandlers.cpp DatabaseManager.cpp CustomerManager.cpp \
-          DressManager.cpp RentalManager.cpp PaymentManager.cpp ReportManager.cpp \
-          InputValidator.cpp UIColors.cpp AuthManager.cpp
+# Source files (from src directory)
+SOURCES = src/main.cpp src/MenuHandlers.cpp src/DatabaseManager.cpp src/CustomerManager.cpp \
+          src/DressManager.cpp src/RentalManager.cpp src/PaymentManager.cpp src/ReportManager.cpp \
+          src/InputValidator.cpp src/UIColors.cpp src/AuthManager.cpp
 
 # Object files
-OBJECTS = $(SOURCES:.cpp=.o)
+OBJECTS = $(SOURCES:src/%.cpp=%.o)
 
 # Executable name
 TARGET = rental_system
@@ -33,9 +33,12 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) -lmysqlcppconn
 
+# Include directory for headers
+INCLUDES = -Iinclude
+
 # Compile source files to object files
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 # Clean build files
 clean:

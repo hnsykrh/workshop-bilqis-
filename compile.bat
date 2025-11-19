@@ -6,7 +6,7 @@ set MYSQL_INCLUDE=C:\xampp\mysql\include
 set MYSQL_LIB=C:\xampp\mysql\lib
 
 echo Compiling Dress Rental Management System...
-g++ -std=c++11 *.cpp -o rental_system.exe -I"%MYSQL_INCLUDE%" -L"%MYSQL_LIB%" -lmysqlcppconn
+g++ -std=c++11 src\*.cpp -o rental_system.exe -I"%MYSQL_INCLUDE%" -I"include" -L"%MYSQL_LIB%" -lmysqlcppconn
 
 if %ERRORLEVEL% EQU 0 (
     echo Compilation successful!
