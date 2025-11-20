@@ -13,8 +13,8 @@ public:
     static int getInt(const std::string& prompt, int min = INT_MIN, int max = INT_MAX, bool allowRetry = true);
     
     // Double input with validation
-    static double getDouble(const std::string& prompt, double min = -std::numeric_limits<double>::max(), 
-                           double max = std::numeric_limits<double>::max(), bool allowRetry = true);
+    static double getDouble(const std::string& prompt, double min = (std::numeric_limits<double>::lowest()), 
+                           double max = (std::numeric_limits<double>::max)(), bool allowRetry = true);
     
     // String input with validation
     static std::string getString(const std::string& prompt, bool required = true, 

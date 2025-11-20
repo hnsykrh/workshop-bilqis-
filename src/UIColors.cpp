@@ -4,6 +4,7 @@
 #include <sstream>
 
 #ifdef _WIN32
+#define NOMINMAX  // Prevent Windows.h from defining min/max macros
 #include <windows.h>
 #endif
 

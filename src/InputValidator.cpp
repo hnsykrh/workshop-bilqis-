@@ -9,6 +9,7 @@
 #include <limits>
 #include <cctype>
 #ifdef _WIN32
+#define NOMINMAX  // Prevent Windows.h from defining min/max macros
 #include <windows.h>
 #include <conio.h>
 #else
@@ -57,11 +58,16 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
     std::string input;
     
     while (true) {
-        std::cout << prompt;
+        if (!prompt.empty()) {
+            UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
+            std::cout << "  ";
+        } else {
+            std::cout << prompt;
+        }
         std::getline(std::cin, input);
         
         if (input.empty()) {
-            showError("Input cannot be empty. Please enter a number.");
+            UIColors::printCentered("Input cannot be empty. Please enter a number.", SCREEN_WIDTH, UIColors::RED);
             if (!allowRetry) return 0.0;
             continue;
         }
@@ -70,14 +76,14 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
             value = std::stod(input);
             
             if (value < min || value > max) {
-                showError("Value must be between " + std::to_string(min) + " and " + std::to_string(max) + ".");
+                UIColors::printCentered("Value must be between " + std::to_string(min) + " and " + std::to_string(max) + ".", SCREEN_WIDTH, UIColors::RED);
                 if (!allowRetry) return 0.0;
                 continue;
             }
             
             return value;
         } catch (const std::exception&) {
-            showError("Invalid input. Please enter a valid number.");
+            UIColors::printCentered("Invalid input. Please enter a valid number.", SCREEN_WIDTH, UIColors::RED);
             if (!allowRetry) return 0.0;
         }
     }
@@ -296,7 +302,7 @@ bool InputValidator::confirm(const std::string& message) {
 
 void InputValidator::clearInputBuffer() {
     std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 }
 
 void InputValidator::pause(const std::string& message) {
