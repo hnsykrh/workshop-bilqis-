@@ -47,6 +47,7 @@ public:
     static void printWarning(const std::string& message);
     static void printInfo(const std::string& message);
     static void printMenuOption(int num, const std::string& text);
+    static void printCenteredInput(const std::string& prompt, int width = 80, const std::string& color = "");
     
     // Colored Text Functions
     static std::string colorize(const std::string& text, const std::string& color);

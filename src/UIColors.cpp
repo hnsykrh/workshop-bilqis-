@@ -185,3 +185,15 @@ std::string UIColors::bold(const std::string& text) {
     return text;
 }
 
+void UIColors::printCenteredInput(const std::string& prompt, int width, const std::string& color) {
+    int padding = (width - static_cast<int>(prompt.length())) / 2;
+    if (padding < 0) padding = 0;
+    
+    std::string output = std::string(padding, ' ') + prompt;
+    if (colors_enabled && !color.empty()) {
+        std::cout << color << output << RESET;
+    } else {
+        std::cout << output;
+    }
+}
+

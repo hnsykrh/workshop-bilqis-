@@ -23,7 +23,7 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
     
     while (true) {
         if (!prompt.empty()) {
-            UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
+            UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
         }
         std::getline(std::cin, input);
         
@@ -56,7 +56,7 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
     
     while (true) {
         if (!prompt.empty()) {
-            UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
+            UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
         }
         std::getline(std::cin, input);
         
@@ -88,7 +88,7 @@ std::string InputValidator::getString(const std::string& prompt, bool required, 
     
     while (true) {
         if (!prompt.empty()) {
-            UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
+            UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
         }
         std::getline(std::cin, input);
         
@@ -120,7 +120,7 @@ std::string InputValidator::getDate(const std::string& prompt, bool allowRetry) 
     
     while (true) {
         std::string fullPrompt = prompt + " (YYYY-MM-DD)";
-        UIColors::printCentered(fullPrompt, SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCenteredInput(fullPrompt, SCREEN_WIDTH, UIColors::WHITE);
         std::getline(std::cin, input);
         
         if (input.empty()) {
@@ -223,7 +223,7 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
     
     while (true) {
         if (!prompt.empty()) {
-            UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
+            UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
         }
         
         // Mask password input
