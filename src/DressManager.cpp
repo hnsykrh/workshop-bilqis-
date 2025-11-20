@@ -306,37 +306,37 @@ void DressManager::displayDress(const Dress& dress) {
     std::cout << std::endl;
     UIColors::printSeparator(60);
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Dress ID:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Dress ID:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.DressID 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Name:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Name:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.DressName 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Category:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Category:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.Category 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Size:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Size:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.Size 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Color:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Color:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.Color 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::ostringstream priceStream;
     priceStream << std::fixed << std::setprecision(2) << "RM " << dress.RentalPrice;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Rental Price:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Rental Price:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << priceStream.str()
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Condition:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Condition:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.ConditionStatus 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Availability:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Availability:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.AvailabilityStatus 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     UIColors::printSeparator(60);
@@ -348,30 +348,40 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
         return;
     }
     
+    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
-    UIColors::printCentered("DRESS INVENTORY LIST", 140, UIColors::BOLD + UIColors::CYAN);
-    UIColors::printSeparator(140);
-    std::cout << std::setw(8) << UIColors::colorize("ID", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(25) << UIColors::colorize("Name", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Category", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(8) << UIColors::colorize("Size", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Color", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(12) << UIColors::colorize("Price", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Condition", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Availability", UIColors::BOLD + UIColors::YELLOW) << std::endl;
-    UIColors::printSeparator(140);
+    UIColors::printCentered("DRESS INVENTORY LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+    UIColors::printSeparator(SCREEN_WIDTH);
+    
+    // Calculate column widths to fit within SCREEN_WIDTH
+    int col1 = 5, col2 = 18, col3 = 12, col4 = 6, col5 = 10, col6 = 10, col7 = 10, col8 = 12;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + col8;
+    int padding = (SCREEN_WIDTH - totalWidth) / 2;
+    if (padding < 0) padding = 0;
+    
+    std::cout << std::string(padding, ' ')
+              << std::setw(col1) << UIColors::colorize("ID", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col2) << UIColors::colorize("Name", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col3) << UIColors::colorize("Category", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col4) << UIColors::colorize("Size", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col5) << UIColors::colorize("Color", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col6) << UIColors::colorize("Price", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col7) << UIColors::colorize("Condition", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col8) << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN) << std::endl;
+    UIColors::printSeparator(SCREEN_WIDTH);
     
     for (const auto& dress : dresses) {
-        std::cout << std::setw(8) << dress.DressID
-                  << std::setw(25) << dress.DressName.substr(0, 23)
-                  << std::setw(15) << dress.Category
-                  << std::setw(8) << dress.Size
-                  << std::setw(15) << dress.Color
-                  << std::setw(12) << std::fixed << std::setprecision(2) << dress.RentalPrice
-                  << std::setw(15) << dress.ConditionStatus
-                  << std::setw(15) << dress.AvailabilityStatus << std::endl;
+        std::cout << std::string(padding, ' ')
+                  << std::setw(col1) << dress.DressID
+                  << std::setw(col2) << (dress.DressName.length() > 16 ? dress.DressName.substr(0, 16) : dress.DressName)
+                  << std::setw(col3) << (dress.Category.length() > 10 ? dress.Category.substr(0, 10) : dress.Category)
+                  << std::setw(col4) << dress.Size
+                  << std::setw(col5) << (dress.Color.length() > 8 ? dress.Color.substr(0, 8) : dress.Color)
+                  << std::setw(col6) << std::fixed << std::setprecision(2) << dress.RentalPrice
+                  << std::setw(col7) << (dress.ConditionStatus.length() > 8 ? dress.ConditionStatus.substr(0, 8) : dress.ConditionStatus)
+                  << std::setw(col8) << (dress.AvailabilityStatus.length() > 10 ? dress.AvailabilityStatus.substr(0, 10) : dress.AvailabilityStatus) << std::endl;
     }
-    UIColors::printSeparator(140);
+    UIColors::printSeparator(SCREEN_WIDTH);
 }
 
 double DressManager::getDressPrice(int dressID) {

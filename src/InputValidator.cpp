@@ -24,9 +24,6 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
-            std::cout << "  ";
-        } else {
-        std::cout << prompt;
         }
         std::getline(std::cin, input);
         
@@ -60,9 +57,6 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
-            std::cout << "  ";
-        } else {
-        std::cout << prompt;
         }
         std::getline(std::cin, input);
         
@@ -95,9 +89,6 @@ std::string InputValidator::getString(const std::string& prompt, bool required, 
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
-            std::cout << "  ";
-        } else {
-        std::cout << prompt;
         }
         std::getline(std::cin, input);
         
@@ -128,7 +119,8 @@ std::string InputValidator::getDate(const std::string& prompt, bool allowRetry) 
     std::string input;
     
     while (true) {
-        std::cout << prompt << " (YYYY-MM-DD): ";
+        std::string fullPrompt = prompt + " (YYYY-MM-DD)";
+        UIColors::printCentered(fullPrompt, SCREEN_WIDTH, UIColors::WHITE);
         std::getline(std::cin, input);
         
         if (input.empty()) {
@@ -221,11 +213,11 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
     if (showRequirements) {
         std::cout << std::endl;
         UIColors::printCentered("Password Requirements:", SCREEN_WIDTH, UIColors::YELLOW);
-        UIColors::printCentered("• At least 8 characters long", SCREEN_WIDTH, UIColors::WHITE);
-        UIColors::printCentered("• At least one uppercase letter (A-Z)", SCREEN_WIDTH, UIColors::WHITE);
-        UIColors::printCentered("• At least one lowercase letter (a-z)", SCREEN_WIDTH, UIColors::WHITE);
-        UIColors::printCentered("• At least one digit (0-9)", SCREEN_WIDTH, UIColors::WHITE);
-        UIColors::printCentered("• At least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("- At least 8 characters long", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("- At least one uppercase letter (A-Z)", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("- At least one lowercase letter (a-z)", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("- At least one digit (0-9)", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("- At least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)", SCREEN_WIDTH, UIColors::WHITE);
         std::cout << std::endl;
     }
     
@@ -233,7 +225,6 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
         if (!prompt.empty()) {
             UIColors::printCentered(prompt, SCREEN_WIDTH, UIColors::WHITE);
         }
-        std::cout << "  ";
         
         // Mask password input
         password = "";
@@ -296,7 +287,6 @@ bool InputValidator::confirm(const std::string& message) {
     std::string input;
     std::cout << std::endl;
     UIColors::printCentered(message + " (y/n): ", SCREEN_WIDTH, UIColors::YELLOW);
-    std::cout << "  ";
     std::getline(std::cin, input);
     
     // Convert to lowercase

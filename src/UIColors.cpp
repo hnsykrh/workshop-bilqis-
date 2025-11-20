@@ -159,9 +159,14 @@ void UIColors::printMenuOption(int num, const std::string& text) {
     std::ostringstream oss;
     oss << num << ". " << text;
     if (colors_enabled) {
-        std::cout << YELLOW << std::setw(3) << num << RESET << ". " << WHITE << text << RESET << std::endl;
+        int padding = (SCREEN_WIDTH - static_cast<int>(text.length()) - 6) / 2;
+        if (padding < 0) padding = 0;
+        std::string output = std::string(padding, ' ') + std::to_string(num) + ". " + text;
+        std::cout << std::string(padding, ' ') << CYAN << std::to_string(num) << RESET << ". " << WHITE << text << RESET << std::endl;
     } else {
-        std::cout << std::setw(3) << num << ". " << text << std::endl;
+        int padding = (SCREEN_WIDTH - static_cast<int>(text.length()) - 6) / 2;
+        if (padding < 0) padding = 0;
+        std::cout << std::string(padding, ' ') << std::setw(3) << num << ". " << text << std::endl;
     }
 }
 

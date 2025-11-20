@@ -278,29 +278,46 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
         return;
     }
     
+    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
-    UIColors::printCentered("PAYMENT LIST", 120, UIColors::BOLD + UIColors::CYAN);
-    UIColors::printSeparator(120);
-    std::cout << std::setw(10) << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(12) << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Amount", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(18) << UIColors::colorize("Method", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Date", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(15) << UIColors::colorize("Status", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(20) << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::YELLOW) << std::endl;
-    UIColors::printSeparator(120);
+    UIColors::printCentered("PAYMENT LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+    UIColors::printSeparator(SCREEN_WIDTH);
+    
+    // Calculate column widths to fit within SCREEN_WIDTH
+    int col1 = 7, col2 = 9, col3 = 10, col4 = 12, col5 = 12, col6 = 10, col7 = 15;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7;
+    int padding = (SCREEN_WIDTH - totalWidth) / 2;
+    if (padding < 0) padding = 0;
+    
+    std::cout << std::string(padding, ' ')
+              << std::setw(col1) << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col2) << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col3) << UIColors::colorize("Amount", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col4) << UIColors::colorize("Method", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col5) << UIColors::colorize("Date", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col6) << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col7) << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN) << std::endl;
+    UIColors::printSeparator(SCREEN_WIDTH);
+    
+    const int SCREEN_WIDTH = 80;
+    // Calculate column widths to fit within SCREEN_WIDTH
+    int col1 = 7, col2 = 9, col3 = 10, col4 = 12, col5 = 12, col6 = 10, col7 = 15;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7;
+    int padding = (SCREEN_WIDTH - totalWidth) / 2;
+    if (padding < 0) padding = 0;
     
     for (const auto& payment : payments) {
-        std::cout << std::setw(10) << payment.PaymentID
-                  << std::setw(12) << payment.RentalID
-                  << std::setw(15) << std::fixed << std::setprecision(2) << payment.Amount
-                  << std::setw(18) << payment.PaymentMethod
-                  << std::setw(15) << payment.PaymentDate
-                  << std::setw(15) << payment.Status
-                  << std::setw(20) << (payment.TransactionReference.length() > 18 ? 
-                                       payment.TransactionReference.substr(0, 18) : 
+        std::cout << std::string(padding, ' ')
+                  << std::setw(col1) << payment.PaymentID
+                  << std::setw(col2) << payment.RentalID
+                  << std::setw(col3) << std::fixed << std::setprecision(2) << payment.Amount
+                  << std::setw(col4) << (payment.PaymentMethod.length() > 10 ? payment.PaymentMethod.substr(0, 10) : payment.PaymentMethod)
+                  << std::setw(col5) << payment.PaymentDate
+                  << std::setw(col6) << (payment.Status.length() > 8 ? payment.Status.substr(0, 8) : payment.Status)
+                  << std::setw(col7) << (payment.TransactionReference.length() > 13 ? 
+                                       payment.TransactionReference.substr(0, 13) : 
                                        payment.TransactionReference) << std::endl;
     }
-    UIColors::printSeparator(120);
+    UIColors::printSeparator(SCREEN_WIDTH);
 }
 

@@ -47,7 +47,7 @@ bool showLoginScreen() {
                 UIColors::printSeparator(SCREEN_WIDTH);
                 UIColors::printCentered("The following dresses have low stock:", SCREEN_WIDTH, UIColors::YELLOW);
                 for (const auto& item : lowStock) {
-                    std::string itemText = "• Dress ID " + std::to_string(item.first) + ": " + item.second;
+                    std::string itemText = "- Dress ID " + std::to_string(item.first) + ": " + item.second;
                     UIColors::printCentered(itemText, SCREEN_WIDTH, UIColors::WHITE);
                 }
                 UIColors::printSeparator(SCREEN_WIDTH);
@@ -259,37 +259,31 @@ void customerManagementMenu() {
                 
                 std::string prompt1 = "Name [" + existing->Name + "]: ";
                 UIColors::printCentered(prompt1, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.Name = input.empty() ? existing->Name : input;
                 
                 std::string prompt2 = "IC Number [" + existing->IC_Number + "]: ";
                 UIColors::printCentered(prompt2, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.IC_Number = input.empty() ? existing->IC_Number : input;
                 
                 std::string prompt3 = "Phone [" + existing->Phone + "]: ";
                 UIColors::printCentered(prompt3, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.Phone = input.empty() ? existing->Phone : input;
                 
                 std::string prompt4 = "Email [" + existing->Email + "]: ";
                 UIColors::printCentered(prompt4, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.Email = input.empty() ? existing->Email : input;
                 
                 std::string prompt5 = "Address [" + existing->Address + "]: ";
                 UIColors::printCentered(prompt5, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.Address = input.empty() ? existing->Address : input;
                 
                 std::string prompt6 = "Date of Birth [" + existing->DateOfBirth + "]: ";
                 UIColors::printCentered(prompt6, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 customer.DateOfBirth = input.empty() ? existing->DateOfBirth : input;
                 
@@ -430,14 +424,12 @@ void dressManagementMenu() {
                 
                 std::string condPrompt = "Condition Status (Good/Fair/Poor) [Good]: ";
                 UIColors::printCentered(condPrompt, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::string cond;
                 std::getline(std::cin, cond);
                 dress.ConditionStatus = cond.empty() ? "Good" : cond;
                 
                 std::string availPrompt = "Availability Status (Available/Rented/Maintenance) [Available]: ";
                 UIColors::printCentered(availPrompt, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::string avail;
                 std::getline(std::cin, avail);
                 dress.AvailabilityStatus = avail.empty() ? "Available" : avail;
@@ -520,41 +512,36 @@ void dressManagementMenu() {
                 
                 std::string dPrompt1 = "Dress Name [" + existing->DressName + "]: ";
                 UIColors::printCentered(dPrompt1, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.DressName = input.empty() ? existing->DressName : input;
                 
                 std::string dPrompt2 = "Category [" + existing->Category + "]: ";
                 UIColors::printCentered(dPrompt2, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.Category = input.empty() ? existing->Category : input;
                 
                 std::string dPrompt3 = "Size [" + existing->Size + "]: ";
                 UIColors::printCentered(dPrompt3, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.Size = input.empty() ? existing->Size : input;
                 
                 std::string dPrompt4 = "Color [" + existing->Color + "]: ";
                 UIColors::printCentered(dPrompt4, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.Color = input.empty() ? existing->Color : input;
                 
                 std::string dPrompt5 = "Rental Price [" + std::to_string(existing->RentalPrice) + "]: ";
                 UIColors::printCentered(dPrompt5, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.RentalPrice = input.empty() ? existing->RentalPrice : std::stod(input);
                 
                 std::string dPrompt6 = "Condition Status [" + existing->ConditionStatus + "]: ";
                 UIColors::printCentered(dPrompt6, SCREEN_WIDTH, UIColors::YELLOW);
-                std::cout << "  ";
                 std::getline(std::cin, input);
                 dress.ConditionStatus = input.empty() ? existing->ConditionStatus : input;
                 
-                std::cout << UIColors::colorize("Availability Status", UIColors::YELLOW) << " [" << existing->AvailabilityStatus << "]: ";
+                std::string availPrompt7 = "Availability Status [" + existing->AvailabilityStatus + "]: ";
+                UIColors::printCentered(availPrompt7, SCREEN_WIDTH, UIColors::YELLOW);
                 std::getline(std::cin, input);
                 dress.AvailabilityStatus = input.empty() ? existing->AvailabilityStatus : input;
                 
@@ -958,10 +945,10 @@ void paymentManagementMenu() {
                 double totalPaid = pm.getTotalPaid(rentalID);
                 double remaining = totalDue - totalPaid;
                 
-                UIColors::printInfo("Payment Summary:");
-                std::cout << "Total Due: " << UIColors::colorize("RM " + std::to_string(totalDue), UIColors::RED) << std::endl;
-                std::cout << "Total Paid: " << UIColors::colorize("RM " + std::to_string(totalPaid), UIColors::GREEN) << std::endl;
-                std::cout << "Remaining: " << UIColors::colorize("RM " + std::to_string(remaining), UIColors::YELLOW) << std::endl;
+                UIColors::printCentered("Payment Summary", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                UIColors::printCentered("Total Due: RM " + std::to_string(totalDue), SCREEN_WIDTH, UIColors::RED);
+                UIColors::printCentered("Total Paid: RM " + std::to_string(totalPaid), SCREEN_WIDTH, UIColors::GREEN);
+                UIColors::printCentered("Remaining: RM " + std::to_string(remaining), SCREEN_WIDTH, UIColors::YELLOW);
                 
                 if (remaining <= 0) {
                     UIColors::printInfo("This rental is already fully paid.");
@@ -971,7 +958,7 @@ void paymentManagementMenu() {
                 }
                 
                 amount = InputValidator::getDouble("\nPayment Amount (RM)*: ", 0.01, remaining);
-                std::cout << UIColors::colorize("Payment Method", UIColors::YELLOW) << " (Cash/Credit Card/Debit Card/Online)*: ";
+                UIColors::printCentered("Payment Method (Cash/Credit Card/Debit Card/Online)*: ", SCREEN_WIDTH, UIColors::WHITE);
                 std::getline(std::cin, paymentMethod);
                 paymentDate = InputValidator::getDate("Payment Date*");
                 transactionRef = InputValidator::getString("Transaction Reference (optional): ", false, 0, 100);
@@ -1081,7 +1068,7 @@ void paymentManagementMenu() {
                 }
                 delete payment;
                 
-                std::cout << UIColors::colorize("New Status", UIColors::YELLOW) << " (Pending/Completed/Failed/Refunded)*: ";
+                UIColors::printCentered("New Status (Pending/Completed/Failed/Refunded)*: ", SCREEN_WIDTH, UIColors::WHITE);
                 std::getline(std::cin, status);
                 
                 if (InputValidator::confirm("Are you sure you want to update the payment status?")) {

@@ -279,31 +279,31 @@ void CustomerManager::displayCustomer(const Customer& customer) {
     std::cout << std::endl;
     UIColors::printSeparator(60);
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Customer ID:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Customer ID:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.CustomerID 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Name:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Name:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.Name 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("IC Number:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("IC Number:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.IC_Number 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Phone:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Phone:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.Phone 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Email:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Email:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.Email 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Address:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Address:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.Address 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Date of Birth:", UIColors::YELLOW) << " " 
+              << UIColors::colorize("Date of Birth:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << customer.DateOfBirth 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     UIColors::printSeparator(60);
@@ -315,26 +315,36 @@ void CustomerManager::displayAllCustomers(const std::vector<Customer>& customers
         return;
     }
     
+    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
-    UIColors::printCentered("CUSTOMER LIST", 120, UIColors::BOLD + UIColors::CYAN);
-    UIColors::printSeparator(120);
-    std::cout << std::setw(8) << UIColors::colorize("ID", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(25) << UIColors::colorize("Name", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(18) << UIColors::colorize("IC Number", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(18) << UIColors::colorize("Phone", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(25) << UIColors::colorize("Email", UIColors::BOLD + UIColors::YELLOW)
-              << std::setw(12) << UIColors::colorize("DOB", UIColors::BOLD + UIColors::YELLOW) << std::endl;
-    UIColors::printSeparator(120);
+    UIColors::printCentered("CUSTOMER LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+    UIColors::printSeparator(SCREEN_WIDTH);
+    
+    // Calculate column widths to fit within SCREEN_WIDTH
+    int col1 = 6, col2 = 20, col3 = 14, col4 = 14, col5 = 20, col6 = 10;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6;
+    int padding = (SCREEN_WIDTH - totalWidth) / 2;
+    if (padding < 0) padding = 0;
+    
+    std::cout << std::string(padding, ' ')
+              << std::setw(col1) << UIColors::colorize("ID", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col2) << UIColors::colorize("Name", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col3) << UIColors::colorize("IC Number", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col4) << UIColors::colorize("Phone", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col5) << UIColors::colorize("Email", UIColors::BOLD + UIColors::CYAN)
+              << std::setw(col6) << UIColors::colorize("DOB", UIColors::BOLD + UIColors::CYAN) << std::endl;
+    UIColors::printSeparator(SCREEN_WIDTH);
     
     for (const auto& customer : customers) {
-        std::cout << std::setw(8) << customer.CustomerID
-                  << std::setw(25) << customer.Name.substr(0, 23)
-                  << std::setw(18) << customer.IC_Number
-                  << std::setw(18) << customer.Phone
-                  << std::setw(25) << customer.Email.substr(0, 23)
-                  << std::setw(12) << customer.DateOfBirth << std::endl;
+        std::cout << std::string(padding, ' ')
+                  << std::setw(col1) << customer.CustomerID
+                  << std::setw(col2) << (customer.Name.length() > 18 ? customer.Name.substr(0, 18) : customer.Name)
+                  << std::setw(col3) << (customer.IC_Number.length() > 12 ? customer.IC_Number.substr(0, 12) : customer.IC_Number)
+                  << std::setw(col4) << (customer.Phone.length() > 12 ? customer.Phone.substr(0, 12) : customer.Phone)
+                  << std::setw(col5) << (customer.Email.length() > 18 ? customer.Email.substr(0, 18) : customer.Email)
+                  << std::setw(col6) << customer.DateOfBirth << std::endl;
     }
-    UIColors::printSeparator(120);
+    UIColors::printSeparator(SCREEN_WIDTH);
 }
 
 int CustomerManager::getActiveRentalCount(int customerID) {
