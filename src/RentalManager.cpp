@@ -320,7 +320,7 @@ std::vector<RentalItem> RentalManager::getRentalItems(int rentalID) {
 bool RentalManager::calculateLateFee(int rentalID) {
     try {
         Rental* rental = getRentalByID(rentalID);
-        if (!rental || rental->Status != "Active") {
+        if (!rental) {
             delete rental;
             return false;
         }
@@ -330,10 +330,20 @@ bool RentalManager::calculateLateFee(int rentalID) {
         ss >> std::get_time(&dueTm, "%Y-%m-%d");
         
         std::time_t dueTime = std::mktime(&dueTm);
-        std::time_t now = std::time(nullptr);
+        std::time_t compareTime;
         
-        if (now > dueTime) {
-            double daysLate = std::difftime(now, dueTime) / (24 * 60 * 60);
+        // Use return date if available, otherwise use current time
+        if (!rental->ReturnDate.empty() && rental->ReturnDate != "NULL") {
+            std::tm returnTm = {};
+            std::istringstream returnSs(rental->ReturnDate);
+            returnSs >> std::get_time(&returnTm, "%Y-%m-%d");
+            compareTime = std::mktime(&returnTm);
+        } else {
+            compareTime = std::time(nullptr);
+        }
+        
+        if (compareTime > dueTime) {
+            double daysLate = std::difftime(compareTime, dueTime) / (24 * 60 * 60);
             double lateFee = daysLate * 10.0; // RM 10 per day
             
             sql::Connection* conn = DatabaseManager::getInstance().getConnection();

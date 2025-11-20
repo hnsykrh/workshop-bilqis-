@@ -24,6 +24,10 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
+        } else {
+            // Add padding for empty prompts to center input
+            int padding = SCREEN_WIDTH / 2;
+            std::cout << std::string(padding, ' ');
         }
         std::getline(std::cin, input);
         
@@ -57,6 +61,10 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
+        } else {
+            // Add padding for empty prompts to center input
+            int padding = SCREEN_WIDTH / 2;
+            std::cout << std::string(padding, ' ');
         }
         std::getline(std::cin, input);
         
@@ -89,6 +97,10 @@ std::string InputValidator::getString(const std::string& prompt, bool required, 
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
+        } else {
+            // Add padding for empty prompts to center input
+            int padding = SCREEN_WIDTH / 2;
+            std::cout << std::string(padding, ' ');
         }
         std::getline(std::cin, input);
         
@@ -224,6 +236,10 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
     while (true) {
         if (!prompt.empty()) {
             UIColors::printCenteredInput(prompt, SCREEN_WIDTH, UIColors::WHITE);
+        } else {
+            // Add padding for empty prompts to center input
+            int padding = SCREEN_WIDTH / 2;
+            std::cout << std::string(padding, ' ');
         }
         
         // Mask password input

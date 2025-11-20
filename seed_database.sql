@@ -47,14 +47,19 @@ INSERT INTO Dresses (DressName, Category, Size, Color, RentalPrice, ConditionSta
 ('Traditional Cheongsam', 'Traditional', 'M', 'Red', 160.00, 'Good', 'Available');
 
 -- Insert Rentals for September 2025 (5 rentals)
+-- Rental 1: 7 days (Sep 5-12), Items: 150+300+350+180+160 = 1140/day, Total: 7980
+-- Rental 2: 7 days (Sep 10-17), Items: 200+100+110+130+140 = 680/day, Total: 4760
+-- Rental 3: 7 days (Sep 15-22), Items: 80+90+95+75 = 340/day, Total: 2380
+-- Rental 4: 7 days (Sep 20-27), Items: 120+80+95+75 = 370/day, Total: 2590
+-- Rental 5: 7 days (Sep 25-Oct 2), Items: 150+300+350+180 = 980/day, Total: 6860
 INSERT INTO Rentals (CustomerID, RentalDate, DueDate, ReturnDate, TotalAmount, LateFee, Status) VALUES
-(1, '2025-09-05', '2025-09-12', '2025-09-11', 1050.00, 0.00, 'Returned'),
-(2, '2025-09-10', '2025-09-17', '2025-09-16', 800.00, 0.00, 'Returned'),
-(3, '2025-09-15', '2025-09-22', '2025-09-21', 600.00, 0.00, 'Returned'),
-(4, '2025-09-20', '2025-09-27', '2025-09-26', 450.00, 0.00, 'Returned'),
-(5, '2025-09-25', '2025-10-02', '2025-10-01', 950.00, 0.00, 'Returned');
+(1, '2025-09-05', '2025-09-12', '2025-09-11', 7980.00, 0.00, 'Returned'),
+(2, '2025-09-10', '2025-09-17', '2025-09-16', 4760.00, 0.00, 'Returned'),
+(3, '2025-09-15', '2025-09-22', '2025-09-21', 2380.00, 0.00, 'Returned'),
+(4, '2025-09-20', '2025-09-27', '2025-09-26', 2590.00, 0.00, 'Returned'),
+(5, '2025-09-25', '2025-10-02', '2025-10-01', 6860.00, 0.00, 'Returned');
 
--- Insert Rental Items for September
+-- Insert Rental Items for September (RentalPrice is daily rate)
 INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 (1, 1, 150.00), (1, 3, 300.00), (1, 10, 350.00), (1, 14, 180.00), (1, 15, 160.00),
 (2, 2, 200.00), (2, 6, 100.00), (2, 8, 110.00), (2, 12, 130.00), (2, 13, 140.00),
@@ -64,21 +69,26 @@ INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 
 -- Insert Payments for September
 INSERT INTO Payments (RentalID, Amount, PaymentMethod, PaymentDate, Status, TransactionReference) VALUES
-(1, 1050.00, 'Cash', '2025-09-05', 'Completed', 'PAY-SEP-001'),
-(2, 800.00, 'Credit Card', '2025-09-10', 'Completed', 'PAY-SEP-002'),
-(3, 600.00, 'Debit Card', '2025-09-15', 'Completed', 'PAY-SEP-003'),
-(4, 450.00, 'Online', '2025-09-20', 'Completed', 'PAY-SEP-004'),
-(5, 950.00, 'Cash', '2025-09-25', 'Completed', 'PAY-SEP-005');
+(1, 7980.00, 'Cash', '2025-09-05', 'Completed', 'PAY-SEP-001'),
+(2, 4760.00, 'Credit Card', '2025-09-10', 'Completed', 'PAY-SEP-002'),
+(3, 2380.00, 'Debit Card', '2025-09-15', 'Completed', 'PAY-SEP-003'),
+(4, 2590.00, 'Online', '2025-09-20', 'Completed', 'PAY-SEP-004'),
+(5, 6860.00, 'Cash', '2025-09-25', 'Completed', 'PAY-SEP-005');
 
 -- Insert Rentals for October 2025 (5 rentals)
+-- Rental 6: 7 days (Oct 3-10), Items: 200+300+350+180+160 = 1190/day, Total: 8330
+-- Rental 7: 7 days (Oct 8-15), Items: 150+120+110+130+140 = 650/day, Total: 4550
+-- Rental 8: 7 days (Oct 13-20), Items: 80+90+95+75 = 340/day, Total: 2380
+-- Rental 9: 7 days (Oct 18-25), Items: 150+300+350+180 = 980/day, Total: 6860
+-- Rental 10: 7 days (Oct 23-30), Items: 200+100+110+130+160 = 700/day, Total: 4900
 INSERT INTO Rentals (CustomerID, RentalDate, DueDate, ReturnDate, TotalAmount, LateFee, Status) VALUES
-(1, '2025-10-03', '2025-10-10', '2025-10-09', 1200.00, 0.00, 'Returned'),
-(2, '2025-10-08', '2025-10-15', '2025-10-14', 700.00, 0.00, 'Returned'),
-(3, '2025-10-13', '2025-10-20', '2025-10-19', 550.00, 0.00, 'Returned'),
-(4, '2025-10-18', '2025-10-25', '2025-10-24', 850.00, 0.00, 'Returned'),
-(5, '2025-10-23', '2025-10-30', '2025-10-29', 1100.00, 0.00, 'Returned');
+(1, '2025-10-03', '2025-10-10', '2025-10-09', 8330.00, 0.00, 'Returned'),
+(2, '2025-10-08', '2025-10-15', '2025-10-14', 4550.00, 0.00, 'Returned'),
+(3, '2025-10-13', '2025-10-20', '2025-10-19', 2380.00, 0.00, 'Returned'),
+(4, '2025-10-18', '2025-10-25', '2025-10-24', 6860.00, 0.00, 'Returned'),
+(5, '2025-10-23', '2025-10-30', '2025-10-29', 4900.00, 0.00, 'Returned');
 
--- Insert Rental Items for October
+-- Insert Rental Items for October (RentalPrice is daily rate)
 INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 (6, 2, 200.00), (6, 3, 300.00), (6, 10, 350.00), (6, 14, 180.00), (6, 15, 160.00),
 (7, 1, 150.00), (7, 5, 120.00), (7, 8, 110.00), (7, 12, 130.00), (7, 13, 140.00),
@@ -88,21 +98,26 @@ INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 
 -- Insert Payments for October
 INSERT INTO Payments (RentalID, Amount, PaymentMethod, PaymentDate, Status, TransactionReference) VALUES
-(6, 1200.00, 'Credit Card', '2025-10-03', 'Completed', 'PAY-OCT-001'),
-(7, 700.00, 'Debit Card', '2025-10-08', 'Completed', 'PAY-OCT-002'),
-(8, 550.00, 'Online', '2025-10-13', 'Completed', 'PAY-OCT-003'),
-(9, 850.00, 'Cash', '2025-10-18', 'Completed', 'PAY-OCT-004'),
-(10, 1100.00, 'Credit Card', '2025-10-23', 'Completed', 'PAY-OCT-005');
+(6, 8330.00, 'Credit Card', '2025-10-03', 'Completed', 'PAY-OCT-001'),
+(7, 4550.00, 'Debit Card', '2025-10-08', 'Completed', 'PAY-OCT-002'),
+(8, 2380.00, 'Online', '2025-10-13', 'Completed', 'PAY-OCT-003'),
+(9, 6860.00, 'Cash', '2025-10-18', 'Completed', 'PAY-OCT-004'),
+(10, 4900.00, 'Credit Card', '2025-10-23', 'Completed', 'PAY-OCT-005');
 
 -- Insert Rentals for November 2025 (5 rentals)
+-- Rental 11: 7 days (Nov 1-8), Items: 150+300+350+180+160 = 1140/day, Total: 7980
+-- Rental 12: 7 days (Nov 6-13), Items: 200+100+110+130+140 = 680/day, Total: 4760
+-- Rental 13: 7 days (Nov 11-18), Items: 80+90+95+75 = 340/day, Total: 2380
+-- Rental 14: 7 days (Nov 16-23), Items: 120+80+95+75+130 = 500/day, Total: 3500
+-- Rental 15: 7 days (Nov 21-28), Items: 150+300+350+180+160 = 1140/day, Total: 7980 (Active)
 INSERT INTO Rentals (CustomerID, RentalDate, DueDate, ReturnDate, TotalAmount, LateFee, Status) VALUES
-(1, '2025-11-01', '2025-11-08', '2025-11-07', 1000.00, 0.00, 'Returned'),
-(2, '2025-11-06', '2025-11-13', '2025-11-12', 750.00, 0.00, 'Returned'),
-(3, '2025-11-11', '2025-11-18', '2025-11-17', 650.00, 0.00, 'Returned'),
-(4, '2025-11-16', '2025-11-23', '2025-11-22', 900.00, 0.00, 'Returned'),
-(5, '2025-11-21', '2025-11-28', NULL, 1150.00, 0.00, 'Active');
+(1, '2025-11-01', '2025-11-08', '2025-11-07', 7980.00, 0.00, 'Returned'),
+(2, '2025-11-06', '2025-11-13', '2025-11-12', 4760.00, 0.00, 'Returned'),
+(3, '2025-11-11', '2025-11-18', '2025-11-17', 2380.00, 0.00, 'Returned'),
+(4, '2025-11-16', '2025-11-23', '2025-11-22', 3500.00, 0.00, 'Returned'),
+(5, '2025-11-21', '2025-11-28', NULL, 7980.00, 0.00, 'Active');
 
--- Insert Rental Items for November
+-- Insert Rental Items for November (RentalPrice is daily rate)
 INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 (11, 1, 150.00), (11, 3, 300.00), (11, 10, 350.00), (11, 14, 180.00), (11, 15, 160.00),
 (12, 2, 200.00), (12, 6, 100.00), (12, 8, 110.00), (12, 12, 130.00), (12, 13, 140.00),
@@ -112,11 +127,11 @@ INSERT INTO RentalItems (RentalID, DressID, RentalPrice) VALUES
 
 -- Insert Payments for November
 INSERT INTO Payments (RentalID, Amount, PaymentMethod, PaymentDate, Status, TransactionReference) VALUES
-(11, 1000.00, 'Cash', '2025-11-01', 'Completed', 'PAY-NOV-001'),
-(12, 750.00, 'Credit Card', '2025-11-06', 'Completed', 'PAY-NOV-002'),
-(13, 650.00, 'Debit Card', '2025-11-11', 'Completed', 'PAY-NOV-003'),
-(14, 900.00, 'Online', '2025-11-16', 'Completed', 'PAY-NOV-004'),
-(15, 1150.00, 'Credit Card', '2025-11-21', 'Completed', 'PAY-NOV-005');
+(11, 7980.00, 'Cash', '2025-11-01', 'Completed', 'PAY-NOV-001'),
+(12, 4760.00, 'Credit Card', '2025-11-06', 'Completed', 'PAY-NOV-002'),
+(13, 2380.00, 'Debit Card', '2025-11-11', 'Completed', 'PAY-NOV-003'),
+(14, 3500.00, 'Online', '2025-11-16', 'Completed', 'PAY-NOV-004'),
+(15, 7980.00, 'Credit Card', '2025-11-21', 'Completed', 'PAY-NOV-005');
 
 -- Update dress availability for active rental
 UPDATE Dresses SET AvailabilityStatus = 'Rented' WHERE DressID IN (1, 3, 10, 14, 15);

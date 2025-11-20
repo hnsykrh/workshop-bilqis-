@@ -191,9 +191,9 @@ void UIColors::printCenteredInput(const std::string& prompt, int width, const st
     
     std::string output = std::string(padding, ' ') + prompt;
     if (colors_enabled && !color.empty()) {
-        std::cout << color << output << RESET;
+        std::cout << color << output << RESET << std::flush;
     } else {
-        std::cout << output;
+        std::cout << output << std::flush;
     }
 }
 
