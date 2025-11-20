@@ -5,11 +5,13 @@
 USE dress_rental_db;
 
 -- Insert Default Users (Password: admin123, staff123, customer123)
--- Note: These are placeholder hashes. Use create_default_users.cpp for proper hashing.
+-- These hashes are computed using SHA-256 of "dress_rental_salt_2025_<password>"
+-- The C++ AuthManager::hashPassword() uses the same algorithm
+-- Run this query to get correct hashes: SELECT SHA2(CONCAT('dress_rental_salt_2025_', 'admin123'), 256);
 INSERT INTO Users (Username, PasswordHash, Role, FullName, Email, Phone) VALUES
-('admin', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2', 'Administrator', 'Shop Administrator', 'admin@dressrental.com', '0123456789'),
-('staff1', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2', 'Staff', 'Staff Member One', 'staff1@dressrental.com', '0198765432'),
-('customer1', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2', 'Customer', 'Customer User One', 'customer1@email.com', '0134567890');
+('admin', SHA2(CONCAT('dress_rental_salt_2025_', 'admin123'), 256), 'Administrator', 'Shop Administrator', 'admin@dressrental.com', '0123456789'),
+('staff1', SHA2(CONCAT('dress_rental_salt_2025_', 'staff123'), 256), 'Staff', 'Staff Member One', 'staff1@dressrental.com', '0198765432'),
+('customer1', SHA2(CONCAT('dress_rental_salt_2025_', 'customer123'), 256), 'Customer', 'Customer User One', 'customer1@email.com', '0134567890');
 
 -- Clear existing data (optional - comment out if you want to keep existing data)
 -- DELETE FROM Payments;
