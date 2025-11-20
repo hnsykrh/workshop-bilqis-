@@ -1,5 +1,6 @@
 #include "DressManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -348,7 +349,6 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
         return;
     }
     
-    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
     UIColors::printCentered("DRESS INVENTORY LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);

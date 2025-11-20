@@ -1,5 +1,6 @@
 #include "RentalManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -407,7 +408,6 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
 }
 
 void RentalManager::displayRental(const Rental& rental) {
-    const int SCREEN_WIDTH = 80;
     const int BOX_WIDTH = 60;
     int padding = (SCREEN_WIDTH - BOX_WIDTH) / 2;
     if (padding < 0) padding = 0;
@@ -491,7 +491,6 @@ void RentalManager::displayRentalDetails(int rentalID) {
     
     std::vector<RentalItem> items = getRentalItems(rentalID);
     if (!items.empty()) {
-        const int SCREEN_WIDTH = 80;
         std::cout << std::endl;
         UIColors::printCentered("Rental Items", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
         UIColors::printSeparator(SCREEN_WIDTH);

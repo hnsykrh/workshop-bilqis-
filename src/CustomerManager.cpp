@@ -1,5 +1,6 @@
 #include "CustomerManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -315,7 +316,6 @@ void CustomerManager::displayAllCustomers(const std::vector<Customer>& customers
         return;
     }
     
-    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
     UIColors::printCentered("CUSTOMER LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);

@@ -1,5 +1,6 @@
 #include "PaymentManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <ctime>
@@ -278,7 +279,6 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
         return;
     }
     
-    const int SCREEN_WIDTH = 80;
     std::cout << std::endl;
     UIColors::printCentered("PAYMENT LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);
@@ -298,13 +298,6 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
               << std::setw(col6) << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
               << std::setw(col7) << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN) << std::endl;
     UIColors::printSeparator(SCREEN_WIDTH);
-    
-    const int SCREEN_WIDTH = 80;
-    // Calculate column widths to fit within SCREEN_WIDTH
-    int col1 = 7, col2 = 9, col3 = 10, col4 = 12, col5 = 12, col6 = 10, col7 = 15;
-    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7;
-    int padding = (SCREEN_WIDTH - totalWidth) / 2;
-    if (padding < 0) padding = 0;
     
     for (const auto& payment : payments) {
         std::cout << std::string(padding, ' ')
