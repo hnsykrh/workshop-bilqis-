@@ -69,14 +69,16 @@ int main() {
         }
         
         try {
-            // Dynamic menu handling based on role
-            int menuOffset = 0;
-            
+            // Common menu options (1-4) for both Staff and Administrator
             if (auth.hasPermission("Staff")) {
                 if (choice == 1) { customerManagementMenu(); continue; }
                 if (choice == 2) { dressManagementMenu(); continue; }
                 if (choice == 3) { rentalManagementMenu(); continue; }
                 if (choice == 4) { paymentManagementMenu(); continue; }
+            }
+            
+            // Administrator only options (5-6)
+            if (auth.hasPermission("Administrator")) {
                 if (choice == 5) { reportsMenu(); continue; }
                 if (choice == 6) {
                     ReportManager rm;
@@ -84,33 +86,26 @@ int main() {
                     InputValidator::pause();
                     continue;
                 }
-                menuOffset = 6;
-            }
-            
-            if (auth.hasPermission("Administrator")) {
-                if (choice == 7) { userManagementMenu(); continue; }
-                menuOffset = 7;
-            }
-            
-            if (auth.hasPermission("Customer")) {
-                if (choice == 8) { customerViewMenu(); continue; }
-                if (choice == 9) {
-                    DressManager dm;
-                    std::vector<Dress> dresses = dm.getAvailableDresses();
-                    if (dresses.empty()) {
-                        UIColors::printInfo("No available dresses found.");
-                    } else {
-                        dm.displayAllDresses(dresses);
-                    }
+            } else {
+                // Staff access denied for options 5-6
+                if (choice == 5) {
+                    UIColors::printError("Access denied. Administrator role required to view Reports & Analytics.");
+                    UIColors::printCentered("Please contact your administrator for access.", SCREEN_WIDTH, UIColors::YELLOW);
+                    InputValidator::pause();
+                    continue;
+                }
+                if (choice == 6) {
+                    UIColors::printError("Access denied. Administrator role required to view Dashboard.");
+                    UIColors::printCentered("Please contact your administrator for access.", SCREEN_WIDTH, UIColors::YELLOW);
                     InputValidator::pause();
                     continue;
                 }
             }
             
-            // Change Password (available to all)
-            if (choice == menuOffset + 1 || (auth.hasPermission("Customer") && choice == 10)) {
-                showChangePasswordMenu();
-                continue;
+            // Change Password (always option 7 for both Staff and Administrator)
+            if (choice == 7) { 
+                showChangePasswordMenu(); 
+                continue; 
             }
             
             UIColors::printError("Invalid choice! Please try again.");

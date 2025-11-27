@@ -111,7 +111,7 @@ void displayMainMenu() {
     
     int menuNum = 1;
     
-    // Staff and Administrator options
+    // Staff and Administrator options (1-4)
     if (auth.hasPermission("Staff")) {
         UIColors::printMenuOption(menuNum++, "Customer Management");
         UIColors::printMenuOption(menuNum++, "Dress Inventory Management");
@@ -119,25 +119,15 @@ void displayMainMenu() {
         UIColors::printMenuOption(menuNum++, "Payment Processing");
     }
     
-    // Reports and Dashboard
-    if (auth.hasPermission("Staff")) {
+    // Administrator only options (5-6)
+    if (auth.hasPermission("Administrator")) {
         UIColors::printMenuOption(menuNum++, "Reports & Analytics");
         UIColors::printMenuOption(menuNum++, "Dashboard");
     }
     
-    // Administrator only
-    if (auth.hasPermission("Administrator")) {
-        UIColors::printMenuOption(menuNum++, "User Management");
-    }
-    
-    // Customer options
-    if (auth.hasPermission("Customer")) {
-        UIColors::printMenuOption(menuNum++, "View My Rentals");
-        UIColors::printMenuOption(menuNum++, "View Available Dresses");
-    }
-    
+    // Change Password (always option 7)
     std::cout << std::endl;
-    UIColors::printMenuOption(menuNum++, "Change Password");
+    UIColors::printMenuOption(7, "Change Password");
     UIColors::printMenuOption(0, "Logout");
     UIColors::printSeparator(SCREEN_WIDTH);
 }
@@ -1091,8 +1081,9 @@ void paymentManagementMenu() {
 
 void reportsMenu() {
     AuthManager auth;
-    if (!auth.hasPermission("Staff")) {
-        UIColors::printError("Access denied. Staff or Administrator role required.");
+    if (!auth.hasPermission("Administrator")) {
+        UIColors::printError("Access denied. Administrator role required to view Reports & Analytics.");
+        UIColors::printCentered("Please contact your administrator for access.", SCREEN_WIDTH, UIColors::YELLOW);
         InputValidator::pause();
         return;
     }

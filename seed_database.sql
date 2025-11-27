@@ -4,14 +4,13 @@
 
 USE dress_rental_db;
 
--- Insert Default Users (Password: admin123, staff123, customer123)
+-- Insert Default Users (Password: admin123, staff123)
 -- These hashes are computed using SHA-256 of "dress_rental_salt_2025_<password>"
 -- The C++ AuthManager::hashPassword() uses the same algorithm
 -- Run this query to get correct hashes: SELECT SHA2(CONCAT('dress_rental_salt_2025_', 'admin123'), 256);
 INSERT INTO Users (Username, PasswordHash, Role, FullName, Email, Phone) VALUES
 ('admin', SHA2(CONCAT('dress_rental_salt_2025_', 'admin123'), 256), 'Administrator', 'Shop Administrator', 'admin@dressrental.com', '0123456789'),
-('staff1', SHA2(CONCAT('dress_rental_salt_2025_', 'staff123'), 256), 'Staff', 'Staff Member One', 'staff1@dressrental.com', '0198765432'),
-('customer1', SHA2(CONCAT('dress_rental_salt_2025_', 'customer123'), 256), 'Customer', 'Customer User One', 'customer1@email.com', '0134567890');
+('staff1', SHA2(CONCAT('dress_rental_salt_2025_', 'staff123'), 256), 'Staff', 'Staff Member One', 'staff1@dressrental.com', '0198765432');
 
 -- Clear existing data (optional - comment out if you want to keep existing data)
 -- DELETE FROM Payments;
