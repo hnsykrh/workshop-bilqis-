@@ -1,5 +1,6 @@
 #include "ReportManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include "CustomerManager.h"
 #include "DressManager.h"
 #include "RentalManager.h"
