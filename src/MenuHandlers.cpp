@@ -31,11 +31,18 @@ bool showLoginScreen() {
             std::cout << std::endl;
         }
         
-        UIColors::printCenteredInput("Username: ", SCREEN_WIDTH, UIColors::WHITE);
+        // Calculate center position for input
+        int centerPos = SCREEN_WIDTH / 2;
+        int promptLen = 10; // "Username: " length
+        int startPos = centerPos - (promptLen / 2);
+        
+        std::cout << std::string(startPos, ' ') << UIColors::colorize("Username: ", UIColors::WHITE) << std::flush;
         std::string username = InputValidator::getString("", true, 3, 50);
         std::cout << std::endl;
         
-        UIColors::printCenteredInput("Password: ", SCREEN_WIDTH, UIColors::WHITE);
+        promptLen = 10; // "Password: " length
+        startPos = centerPos - (promptLen / 2);
+        std::cout << std::string(startPos, ' ') << UIColors::colorize("Password: ", UIColors::WHITE) << std::flush;
         std::string password = InputValidator::getPassword("", false, true);  // Skip validation for login
         std::cout << std::endl;
         
@@ -175,6 +182,11 @@ void customerManagementMenu() {
             case 1: {
                 UIColors::printHeader("ADD NEW CUSTOMER", SCREEN_WIDTH);
                 UIColors::printInfo("Please fill in all required fields (*).");
+                std::cout << std::endl;
+                
+                // Customer Information
+                UIColors::printCentered("=== CUSTOMER INFORMATION ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                std::cout << std::endl;
                 
                 customer.Name = InputValidator::getString("Name*: ", true, 2, 100);
                 customer.IC_Number = InputValidator::getString("IC Number*: ", true, 8, 20);
@@ -196,11 +208,78 @@ void customerManagementMenu() {
                 customer.Address = InputValidator::getString("Address*: ", true, 5, 255);
                 customer.DateOfBirth = InputValidator::getDate("Date of Birth*");
                 
-                if (cm.createCustomer(customer)) {
-                    InputValidator::showSuccess("Customer added successfully!");
-                } else {
+                // Create customer first
+                if (!cm.createCustomer(customer)) {
                     InputValidator::showError("Failed to add customer. Please check the error messages above.");
+                    InputValidator::pause();
+                    break;
                 }
+                
+                InputValidator::showSuccess("Customer added successfully!");
+                std::cout << std::endl;
+                
+                // Dress Order Details
+                UIColors::printCentered("=== DRESS ORDER DETAILS ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                std::cout << std::endl;
+                UIColors::printCentered("Would you like to add a dress order for this customer?", SCREEN_WIDTH, UIColors::YELLOW);
+                
+                if (InputValidator::confirm("Add dress order? (Y/N): ")) {
+                    DressManager dm;
+                    RentalManager rm;
+                    
+                    // Get customer ID (just created)
+                    Customer* newCustomer = cm.getCustomerByIC(customer.IC_Number);
+                    if (!newCustomer) {
+                        InputValidator::showError("Could not retrieve customer information.");
+                        InputValidator::pause();
+                        break;
+                    }
+                    int newCustomerID = newCustomer->CustomerID;
+                    delete newCustomer;
+                    
+                    // Show available dresses
+                    std::vector<Dress> availableDresses = dm.getAvailableDresses();
+                    if (availableDresses.empty()) {
+                        UIColors::printInfo("No available dresses found. Please add dresses first.");
+                        InputValidator::pause();
+                        break;
+                    }
+                    
+                    UIColors::printInfo("Please select a dress from the available list below:");
+                    dm.displayAllDresses(availableDresses);
+                    
+                    int dressID = InputValidator::getInt("Enter Dress ID*: ", 1);
+                    Dress* selectedDress = dm.getDressByID(dressID);
+                    if (!selectedDress) {
+                        InputValidator::showError("Dress not found.");
+                        InputValidator::pause();
+                        break;
+                    }
+                    
+                    std::string dressSize = InputValidator::getString("Dress Size*: ", true, 1, 10);
+                    std::string dressColor = InputValidator::getString("Dress Color*: ", true, 2, 30);
+                    std::string dressType = InputValidator::getString("Type of Dress*: ", true, 2, 50);
+                    std::string rentalDate = InputValidator::getDate("Rental Date* (when is the rent wanted): ");
+                    int duration = InputValidator::getInt("Rental Duration (1-14 days)*: ", 1, 14);
+                    
+                    // Create rental
+                    std::vector<int> dressIDs = {dressID};
+                    int rentalID = rm.createRental(newCustomerID, rentalDate, duration, dressIDs);
+                    
+                    if (rentalID > 0) {
+                        InputValidator::showSuccess("Dress order created successfully! Rental ID: " + std::to_string(rentalID));
+                        UIColors::printInfo("Order Details:");
+                        UIColors::printCentered("Customer: " + customer.Name, SCREEN_WIDTH, UIColors::WHITE);
+                        UIColors::printCentered("Dress: " + selectedDress->DressName, SCREEN_WIDTH, UIColors::WHITE);
+                        UIColors::printCentered("Size: " + dressSize + ", Color: " + dressColor + ", Type: " + dressType, SCREEN_WIDTH, UIColors::WHITE);
+                        UIColors::printCentered("Rental Date: " + rentalDate + ", Duration: " + std::to_string(duration) + " days", SCREEN_WIDTH, UIColors::WHITE);
+                    } else {
+                        InputValidator::showError("Failed to create dress order.");
+                    }
+                    
+                    delete selectedDress;
+                }
+                
                 InputValidator::pause();
                 break;
             }

@@ -278,36 +278,50 @@ bool CustomerManager::isICExists(const std::string& icNumber) {
 
 void CustomerManager::displayCustomer(const Customer& customer) {
     std::cout << std::endl;
-    UIColors::printSeparator(60);
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Customer ID:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.CustomerID 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Name:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.Name 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("IC Number:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.IC_Number 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Phone:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.Phone 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Email:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.Email 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Address:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.Address 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
-              << UIColors::colorize("Date of Birth:", UIColors::CYAN) << " " 
-              << std::setw(40) << std::left << customer.DateOfBirth 
-              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
-    UIColors::printSeparator(60);
+    int tableWidth = 60;
+    int padding = (SCREEN_WIDTH - tableWidth) / 2;
+    if (padding < 0) padding = 0;
+    
+    std::string borderLine = std::string(padding, ' ') + "+" + std::string(tableWidth - 2, '-') + "+";
+    std::cout << borderLine << std::endl;
+    
+    // Header row
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << UIColors::colorize("Field", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(37) << std::left << UIColors::colorize("Information", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::endl;
+    std::cout << borderLine << std::endl;
+    
+    // Data rows with proper alignment
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Customer ID:"
+              << "|" << std::setw(37) << std::left << std::to_string(customer.CustomerID)
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Name:"
+              << "|" << std::setw(37) << std::left << customer.Name
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "IC Number:"
+              << "|" << std::setw(37) << std::left << customer.IC_Number
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Phone:"
+              << "|" << std::setw(37) << std::left << customer.Phone
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Email:"
+              << "|" << std::setw(37) << std::left << customer.Email
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Address:"
+              << "|" << std::setw(37) << std::left << customer.Address
+              << "|" << std::endl;
+    std::cout << std::string(padding, ' ') << "|" 
+              << std::setw(20) << std::left << "Date of Birth:"
+              << "|" << std::setw(37) << std::left << customer.DateOfBirth
+              << "|" << std::endl;
+    std::cout << borderLine << std::endl;
 }
 
 void CustomerManager::displayAllCustomers(const std::vector<Customer>& customers) {
