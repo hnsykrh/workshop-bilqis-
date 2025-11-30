@@ -127,11 +127,20 @@ bool AuthManager::login(const std::string& username, const std::string& password
             std::string storedHash = res->getString("PasswordHash");
             
             if (verifyPassword(password, storedHash)) {
+                std::string userRole = res->getString("Role");
+                
+                // Reject Customer role - only Admin and Staff can login
+                if (userRole == "Customer") {
+                    delete pstmt;
+                    delete res;
+                    return false;
+                }
+                
                 currentUser = new User();
                 currentUser->UserID = res->getInt("UserID");
                 currentUser->Username = res->getString("Username");
                 currentUser->PasswordHash = storedHash;
-                currentUser->Role = res->getString("Role");
+                currentUser->Role = userRole;
                 currentUser->FullName = res->getString("FullName");
                 currentUser->Email = res->getString("Email");
                 currentUser->Phone = res->getString("Phone");

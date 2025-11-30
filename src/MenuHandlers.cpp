@@ -18,9 +18,11 @@ bool showLoginScreen() {
     const int MAX_ATTEMPTS = 3;
     
     while (attempts < MAX_ATTEMPTS) {
+        std::cout << std::endl;
         UIColors::printSeparator(SCREEN_WIDTH);
         UIColors::printCentered("DRESS RENTAL MANAGEMENT SYSTEM", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
         UIColors::printCentered("Please Login to Continue", SCREEN_WIDTH, UIColors::YELLOW);
+        UIColors::printCentered("(Admin and Staff Only)", SCREEN_WIDTH, UIColors::DIM + UIColors::WHITE);
         UIColors::printSeparator(SCREEN_WIDTH);
         std::cout << std::endl;
         
@@ -31,13 +33,18 @@ bool showLoginScreen() {
         
         UIColors::printCenteredInput("Username: ", SCREEN_WIDTH, UIColors::WHITE);
         std::string username = InputValidator::getString("", true, 3, 50);
+        std::cout << std::endl;
+        
         UIColors::printCenteredInput("Password: ", SCREEN_WIDTH, UIColors::WHITE);
         std::string password = InputValidator::getPassword("", false, true);  // Skip validation for login
+        std::cout << std::endl;
         
         if (auth.login(username, password)) {
             User* user = auth.getCurrentUser();
+            std::cout << std::endl;
             UIColors::printCentered("Login successful! Welcome, " + user->FullName + "!", SCREEN_WIDTH, UIColors::GREEN);
             UIColors::printCentered("Role: " + user->Role, SCREEN_WIDTH, UIColors::CYAN);
+            std::cout << std::endl;
             
             // Show low stock alert
             std::vector<std::pair<int, std::string>> lowStock = auth.getLowStockDresses(3);
@@ -53,14 +60,21 @@ bool showLoginScreen() {
                 UIColors::printSeparator(SCREEN_WIDTH);
             }
             
-            InputValidator::pause("Press Enter to continue...");
+            std::cout << std::endl;
+            UIColors::printCenteredInput("Press Enter to continue...", SCREEN_WIDTH, UIColors::WHITE);
+            InputValidator::pause("");
             return true;
         } else {
             attempts++;
+            if (attempts < MAX_ATTEMPTS) {
+                std::cout << std::endl;
+            }
         }
     }
     
+    std::cout << std::endl;
     UIColors::printCentered("Maximum login attempts reached. System will exit.", SCREEN_WIDTH, UIColors::RED);
+    std::cout << std::endl;
     InputValidator::pause();
     return false;
 }

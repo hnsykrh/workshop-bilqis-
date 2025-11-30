@@ -283,17 +283,19 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
     UIColors::printCentered("PAYMENT LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);
     
-    // Calculate column widths to fit within SCREEN_WIDTH with proper borders
-    int col1 = 8, col2 = 10, col3 = 12, col4 = 15, col5 = 12, col6 = 12, col7 = 15;
-    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + 7; // +7 for borders (6 separators + 1)
+    // Calculate column widths to fit within SCREEN_WIDTH with perfect square borders
+    int col1 = 9, col2 = 11, col3 = 13, col4 = 16, col5 = 13, col6 = 13, col7 = 16;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + 8; // +8 for 7 separators + 1
     int padding = (SCREEN_WIDTH - totalWidth) / 2;
     if (padding < 0) padding = 0;
     
-    // Print top border
+    // Create border line with perfect alignment
     std::string borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
+    
+    // Print top border
     std::cout << borderLine << std::endl;
     
-    // Print header
+    // Print header row with perfect alignment
     std::cout << std::string(padding, ' ') << "|"
               << std::setw(col1) << std::left << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::CYAN)
               << "|" << std::setw(col2) << std::left << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
@@ -303,22 +305,26 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
               << "|" << std::setw(col6) << std::left << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
               << "|" << std::setw(col7) << std::left << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN)
               << "|" << std::endl;
+    
+    // Print separator line after header
     std::cout << borderLine << std::endl;
     
-    // Print data rows
+    // Print data rows with perfect alignment
     for (const auto& payment : payments) {
         std::cout << std::string(padding, ' ') << "|"
                   << std::setw(col1) << std::left << payment.PaymentID
                   << "|" << std::setw(col2) << std::left << payment.RentalID
                   << "|" << std::setw(col3) << std::left << std::fixed << std::setprecision(2) << payment.Amount
-                  << "|" << std::setw(col4) << std::left << (payment.PaymentMethod.length() > 13 ? payment.PaymentMethod.substr(0, 13) : payment.PaymentMethod)
+                  << "|" << std::setw(col4) << std::left << (payment.PaymentMethod.length() > 14 ? payment.PaymentMethod.substr(0, 14) : payment.PaymentMethod)
                   << "|" << std::setw(col5) << std::left << payment.PaymentDate
-                  << "|" << std::setw(col6) << std::left << (payment.Status.length() > 10 ? payment.Status.substr(0, 10) : payment.Status)
-                  << "|" << std::setw(col7) << std::left << (payment.TransactionReference.length() > 13 ? 
-                                                              payment.TransactionReference.substr(0, 13) : 
+                  << "|" << std::setw(col6) << std::left << (payment.Status.length() > 11 ? payment.Status.substr(0, 11) : payment.Status)
+                  << "|" << std::setw(col7) << std::left << (payment.TransactionReference.length() > 14 ? 
+                                                              payment.TransactionReference.substr(0, 14) : 
                                                               payment.TransactionReference)
                   << "|" << std::endl;
     }
+    
+    // Print bottom border
     std::cout << borderLine << std::endl;
     std::cout << std::endl;
 }
