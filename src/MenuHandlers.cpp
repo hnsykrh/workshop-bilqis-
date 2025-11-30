@@ -223,7 +223,7 @@ void customerManagementMenu() {
                 std::cout << std::endl;
                 UIColors::printCentered("Would you like to add a dress order for this customer?", SCREEN_WIDTH, UIColors::YELLOW);
                 
-                if (InputValidator::confirm("Add dress order? (Y/N): ")) {
+                if (InputValidator::confirm("Add dress order?")) {
                     DressManager dm;
                     RentalManager rm;
                     

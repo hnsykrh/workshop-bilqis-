@@ -27,23 +27,23 @@ INSERT INTO Customers (Name, IC_Number, Phone, Email, Address, DateOfBirth) VALU
 ('Priya Devi', '880425-10-3456', '0134567890', 'priya@email.com', '321 Jalan Tun Razak, KL', '1988-04-25'),
 ('Muhammad Firdaus', '910512-06-7890', '0145678901', 'firdaus@email.com', '654 Jalan Pudu, KL', '1991-05-12');
 
--- Insert Sample Dresses (15 dresses)
+-- Insert Sample Dresses (15 dresses) - 50% Available, 50% Rented
 INSERT INTO Dresses (DressName, Category, Size, Color, RentalPrice, ConditionStatus, AvailabilityStatus) VALUES
-('Elegant Evening Gown', 'Evening', 'M', 'Black', 150.00, 'Good', 'Available'),
+('Elegant Evening Gown', 'Evening', 'M', 'Black', 150.00, 'Good', 'Rented'),
 ('Princess Ball Gown', 'Formal', 'S', 'Pink', 200.00, 'Good', 'Available'),
-('Classic Wedding Dress', 'Wedding', 'M', 'White', 300.00, 'Good', 'Available'),
+('Classic Wedding Dress', 'Wedding', 'M', 'White', 300.00, 'Good', 'Rented'),
 ('Vintage Tea Dress', 'Casual', 'L', 'Blue', 80.00, 'Good', 'Available'),
-('Designer Cocktail Dress', 'Cocktail', 'S', 'Red', 120.00, 'Good', 'Available'),
+('Designer Cocktail Dress', 'Cocktail', 'S', 'Red', 120.00, 'Good', 'Rented'),
 ('Traditional Baju Kurung', 'Traditional', 'M', 'Green', 100.00, 'Good', 'Available'),
-('Modern Jumpsuit', 'Casual', 'L', 'Navy', 90.00, 'Good', 'Available'),
+('Modern Jumpsuit', 'Casual', 'L', 'Navy', 90.00, 'Good', 'Rented'),
 ('Sparkly Party Dress', 'Party', 'S', 'Gold', 110.00, 'Good', 'Available'),
-('Elegant Maxi Dress', 'Casual', 'M', 'Purple', 95.00, 'Good', 'Available'),
+('Elegant Maxi Dress', 'Casual', 'M', 'Purple', 95.00, 'Good', 'Rented'),
 ('Bridal Gown Premium', 'Wedding', 'L', 'Ivory', 350.00, 'Good', 'Available'),
-('Floral Summer Dress', 'Casual', 'S', 'Yellow', 75.00, 'Good', 'Available'),
+('Floral Summer Dress', 'Casual', 'S', 'Yellow', 75.00, 'Good', 'Rented'),
 ('Formal Business Dress', 'Formal', 'M', 'Gray', 130.00, 'Good', 'Available'),
-('Vintage 50s Dress', 'Vintage', 'S', 'Teal', 140.00, 'Good', 'Available'),
+('Vintage 50s Dress', 'Vintage', 'S', 'Teal', 140.00, 'Good', 'Rented'),
 ('Designer Evening Dress', 'Evening', 'L', 'Silver', 180.00, 'Good', 'Available'),
-('Traditional Cheongsam', 'Traditional', 'M', 'Red', 160.00, 'Good', 'Available');
+('Traditional Cheongsam', 'Traditional', 'M', 'Red', 160.00, 'Good', 'Rented');
 
 -- Insert Rentals for September 2025 (5 rentals)
 -- Rental 1: 7 days (Sep 5-12), Items: 150+300+350+180+160 = 1140/day, Total: 7980
