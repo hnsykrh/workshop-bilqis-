@@ -1,10 +1,14 @@
 #include "CustomerManager.h"
 #include "UIColors.h"
 #include "MenuHandlers.h"
+#include "RentalManager.h"
+#include "PaymentManager.h"
+#include "DressManager.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <set>
 
 bool CustomerManager::createCustomer(const Customer& customer) {
     if (!validateAge(customer.DateOfBirth)) {
@@ -322,6 +326,127 @@ void CustomerManager::displayCustomer(const Customer& customer) {
               << "|" << std::setw(37) << std::left << customer.DateOfBirth
               << "|" << std::endl;
     std::cout << borderLine << std::endl;
+    
+    // Get rental and payment information
+    RentalManager rm;
+    PaymentManager pm;
+    DressManager dm;
+    std::vector<Rental> rentals = rm.getRentalsByCustomer(customer.CustomerID);
+    
+    if (!rentals.empty()) {
+        std::cout << std::endl;
+        UIColors::printCentered("=== RENTAL INFORMATION ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+        std::cout << std::endl;
+        
+        int rentalTableWidth = 70;
+        int rentalPadding = (SCREEN_WIDTH - rentalTableWidth) / 2;
+        if (rentalPadding < 0) rentalPadding = 0;
+        
+        std::string rentalBorderLine = std::string(rentalPadding, ' ') + "+" + std::string(rentalTableWidth - 2, '-') + "+";
+        
+        // Print header for rental table
+        std::cout << rentalBorderLine << std::endl;
+        std::cout << std::string(rentalPadding, ' ') << "|"
+                  << std::setw(10) << std::left << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
+                  << "|" << std::setw(25) << std::left << UIColors::colorize("Dresses Rented", UIColors::BOLD + UIColors::CYAN)
+                  << "|" << std::setw(12) << std::left << UIColors::colorize("Rental Date", UIColors::BOLD + UIColors::CYAN)
+                  << "|" << std::setw(12) << std::left << UIColors::colorize("Due Date", UIColors::BOLD + UIColors::CYAN)
+                  << "|" << std::setw(8) << std::left << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
+                  << "|" << std::endl;
+        std::cout << rentalBorderLine << std::endl;
+        
+        // Display each rental with dress and payment info
+        for (const auto& rental : rentals) {
+            // Get dresses for this rental
+            std::vector<int> dressIDs;
+            try {
+                sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+                if (conn) {
+                    sql::PreparedStatement* pstmt = conn->prepareStatement(
+                        "SELECT DressID FROM RentalItems WHERE RentalID = ?"
+                    );
+                    pstmt->setInt(1, rental.RentalID);
+                    sql::ResultSet* res = pstmt->executeQuery();
+                    
+                    while (res && res->next()) {
+                        dressIDs.push_back(res->getInt("DressID"));
+                    }
+                    delete pstmt;
+                    if (res) delete res;
+                }
+            } catch (sql::SQLException& e) {
+                // Continue if error
+            }
+            
+            // Build dress names string
+            std::string dressNames = "";
+            if (!dressIDs.empty()) {
+                for (size_t i = 0; i < dressIDs.size(); ++i) {
+                    Dress* dress = dm.getDressByID(dressIDs[i]);
+                    if (dress) {
+                        if (i > 0) dressNames += ", ";
+                        dressNames += dress->DressName;
+                        delete dress;
+                    }
+                }
+                if (dressNames.length() > 23) {
+                    dressNames = dressNames.substr(0, 20) + "...";
+                }
+            } else {
+                dressNames = "N/A";
+            }
+            
+            // Get payment method for this rental
+            std::vector<Payment> payments = pm.getPaymentsByRental(rental.RentalID);
+            std::string paymentMethod = "N/A";
+            if (!payments.empty()) {
+                paymentMethod = payments[0].PaymentMethod;
+                if (paymentMethod.length() > 8) {
+                    paymentMethod = paymentMethod.substr(0, 8);
+                }
+            }
+            
+            std::cout << std::string(rentalPadding, ' ') << "|"
+                      << std::setw(10) << std::left << rental.RentalID
+                      << "|" << std::setw(25) << std::left << dressNames
+                      << "|" << std::setw(12) << std::left << rental.RentalDate
+                      << "|" << std::setw(12) << std::left << rental.DueDate
+                      << "|" << std::setw(8) << std::left << (rental.Status.length() > 6 ? rental.Status.substr(0, 6) : rental.Status)
+                      << "|" << std::endl;
+        }
+        std::cout << rentalBorderLine << std::endl;
+        
+        // Display payment methods summary
+        std::cout << std::endl;
+        UIColors::printCentered("=== PAYMENT METHODS USED ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+        std::cout << std::endl;
+        
+        std::set<std::string> paymentMethods;
+        for (const auto& rental : rentals) {
+            std::vector<Payment> payments = pm.getPaymentsByRental(rental.RentalID);
+            for (const auto& payment : payments) {
+                paymentMethods.insert(payment.PaymentMethod);
+            }
+        }
+        
+        if (!paymentMethods.empty()) {
+            std::string methodsStr = "";
+            for (const auto& method : paymentMethods) {
+                if (!methodsStr.empty()) methodsStr += ", ";
+                methodsStr += method;
+            }
+            UIColors::printCentered(methodsStr, SCREEN_WIDTH, UIColors::WHITE);
+        } else {
+            UIColors::printCentered("No payments recorded", SCREEN_WIDTH, UIColors::YELLOW);
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << std::endl;
+        UIColors::printCentered("=== RENTAL INFORMATION ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+        std::cout << std::endl;
+        UIColors::printCentered("No rentals found for this customer", SCREEN_WIDTH, UIColors::YELLOW);
+        std::cout << std::endl;
+    }
 }
 
 void CustomerManager::displayAllCustomers(const std::vector<Customer>& customers) {
