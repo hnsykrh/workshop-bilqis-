@@ -17,7 +17,6 @@ void rentalManagementMenu();
 void paymentManagementMenu();
 void reportsMenu();
 void userManagementMenu();
-void customerViewMenu();
 
 #endif
 

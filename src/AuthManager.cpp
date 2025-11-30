@@ -261,8 +261,6 @@ bool AuthManager::hasPermission(const std::string& requiredRole) {
         return currentUser->Role == "Administrator";
     } else if (requiredRole == "Staff") {
         return currentUser->Role == "Administrator" || currentUser->Role == "Staff";
-    } else if (requiredRole == "Customer") {
-        return currentUser->Role == "Customer" || currentUser->Role == "Staff" || currentUser->Role == "Administrator";
     }
     
     return false;

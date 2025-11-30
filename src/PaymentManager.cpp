@@ -283,34 +283,43 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
     UIColors::printCentered("PAYMENT LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);
     
-    // Calculate column widths to fit within SCREEN_WIDTH
-    int col1 = 7, col2 = 9, col3 = 10, col4 = 12, col5 = 12, col6 = 10, col7 = 15;
-    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7;
+    // Calculate column widths to fit within SCREEN_WIDTH with proper borders
+    int col1 = 8, col2 = 10, col3 = 12, col4 = 15, col5 = 12, col6 = 12, col7 = 15;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + 7; // +7 for borders (6 separators + 1)
     int padding = (SCREEN_WIDTH - totalWidth) / 2;
     if (padding < 0) padding = 0;
     
-    std::cout << std::string(padding, ' ')
-              << std::setw(col1) << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col2) << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col3) << UIColors::colorize("Amount", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col4) << UIColors::colorize("Method", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col5) << UIColors::colorize("Date", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col6) << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
-              << std::setw(col7) << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN) << std::endl;
-    UIColors::printSeparator(SCREEN_WIDTH);
+    // Print top border
+    std::string borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
+    std::cout << borderLine << std::endl;
     
+    // Print header
+    std::cout << std::string(padding, ' ') << "|"
+              << std::setw(col1) << std::left << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col2) << std::left << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col3) << std::left << UIColors::colorize("Amount", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col4) << std::left << UIColors::colorize("Method", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col5) << std::left << UIColors::colorize("Date", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col6) << std::left << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::setw(col7) << std::left << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN)
+              << "|" << std::endl;
+    std::cout << borderLine << std::endl;
+    
+    // Print data rows
     for (const auto& payment : payments) {
-        std::cout << std::string(padding, ' ')
-                  << std::setw(col1) << payment.PaymentID
-                  << std::setw(col2) << payment.RentalID
-                  << std::setw(col3) << std::fixed << std::setprecision(2) << payment.Amount
-                  << std::setw(col4) << (payment.PaymentMethod.length() > 10 ? payment.PaymentMethod.substr(0, 10) : payment.PaymentMethod)
-                  << std::setw(col5) << payment.PaymentDate
-                  << std::setw(col6) << (payment.Status.length() > 8 ? payment.Status.substr(0, 8) : payment.Status)
-                  << std::setw(col7) << (payment.TransactionReference.length() > 13 ? 
-                                       payment.TransactionReference.substr(0, 13) : 
-                                       payment.TransactionReference) << std::endl;
+        std::cout << std::string(padding, ' ') << "|"
+                  << std::setw(col1) << std::left << payment.PaymentID
+                  << "|" << std::setw(col2) << std::left << payment.RentalID
+                  << "|" << std::setw(col3) << std::left << std::fixed << std::setprecision(2) << payment.Amount
+                  << "|" << std::setw(col4) << std::left << (payment.PaymentMethod.length() > 13 ? payment.PaymentMethod.substr(0, 13) : payment.PaymentMethod)
+                  << "|" << std::setw(col5) << std::left << payment.PaymentDate
+                  << "|" << std::setw(col6) << std::left << (payment.Status.length() > 10 ? payment.Status.substr(0, 10) : payment.Status)
+                  << "|" << std::setw(col7) << std::left << (payment.TransactionReference.length() > 13 ? 
+                                                              payment.TransactionReference.substr(0, 13) : 
+                                                              payment.TransactionReference)
+                  << "|" << std::endl;
     }
-    UIColors::printSeparator(SCREEN_WIDTH);
+    std::cout << borderLine << std::endl;
+    std::cout << std::endl;
 }
 

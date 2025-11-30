@@ -148,7 +148,8 @@ void customerManagementMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 6);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 6);
         
         if (choice == 0) break;
         
@@ -200,7 +201,8 @@ void customerManagementMenu() {
                 break;
             }
             case 3: {
-                searchTerm = InputValidator::getString("\nEnter search term (name, IC, phone, or email): ", false, 1, 100);
+                UIColors::printCenteredInput("Enter search term (name, IC, phone, or email): ", SCREEN_WIDTH, UIColors::WHITE);
+                searchTerm = InputValidator::getString("", false, 1, 100);
                 if (!searchTerm.empty()) {
                     std::vector<Customer> customers = cm.searchCustomers(searchTerm);
                     if (customers.empty()) {
@@ -347,7 +349,8 @@ void customerManagementMenu() {
                 UIColors::printInfo("Please select a customer from the list below:");
                 cm.displayAllCustomers(customers);
                 
-                customerID = InputValidator::getInt("\nEnter Customer ID (0 to cancel): ", 0);
+                UIColors::printCenteredInput("Enter Customer ID (0 to cancel): ", SCREEN_WIDTH, UIColors::WHITE);
+                customerID = InputValidator::getInt("", 0);
                 if (customerID == 0) {
                     UIColors::printInfo("View cancelled.");
                     InputValidator::pause();
@@ -394,7 +397,8 @@ void dressManagementMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 7);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 7);
         
         if (choice == 0) break;
         
@@ -453,7 +457,8 @@ void dressManagementMenu() {
                 break;
             }
             case 4: {
-                searchTerm = InputValidator::getString("\nEnter search term: ", false, 1, 100);
+                UIColors::printCenteredInput("Enter search term: ", SCREEN_WIDTH, UIColors::WHITE);
+                searchTerm = InputValidator::getString("", false, 1, 100);
                 if (!searchTerm.empty()) {
                     std::vector<Dress> dresses = dm.searchDresses(searchTerm);
                     if (dresses.empty()) {
@@ -654,7 +659,8 @@ void rentalManagementMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 6);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 6);
         
         if (choice == 0) break;
         
@@ -892,7 +898,8 @@ void paymentManagementMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 5);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 5);
         
         if (choice == 0) break;
         
@@ -947,7 +954,8 @@ void paymentManagementMenu() {
                     break;
                 }
                 
-                amount = InputValidator::getDouble("\nPayment Amount (RM)*: ", 0.01, remaining);
+                UIColors::printCenteredInput("Payment Amount (RM)*: ", SCREEN_WIDTH, UIColors::WHITE);
+                amount = InputValidator::getDouble("", 0.01, remaining);
                 UIColors::printCenteredInput("Payment Method (Cash/Credit Card/Debit Card/Online)*: ", SCREEN_WIDTH, UIColors::WHITE);
                 std::getline(std::cin, paymentMethod);
                 paymentDate = InputValidator::getDate("Payment Date*");
@@ -1106,7 +1114,8 @@ void reportsMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 9);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 9);
         
         if (choice == 0) break;
         
@@ -1114,7 +1123,8 @@ void reportsMenu() {
         
         switch (choice) {
             case 1:
-                year = InputValidator::getString("\nEnter year (YYYY): ", true, 4, 4);
+                UIColors::printCenteredInput("Enter year (YYYY): ", SCREEN_WIDTH, UIColors::WHITE);
+                year = InputValidator::getString("", true, 4, 4);
                 if (InputValidator::isValidDate(year + "-01-01")) {
                     rm.generateMonthlySalesReport(year);
                 } else {
@@ -1185,7 +1195,8 @@ void userManagementMenu() {
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
-        choice = InputValidator::getInt("Enter your choice: ", 0, 4);
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 4);
         if (choice == 0) break;
         
         // User management implementation here
@@ -1194,73 +1205,4 @@ void userManagementMenu() {
     }
 }
 
-void customerViewMenu() {
-    AuthManager auth;
-    User* user = auth.getCurrentUser();
-    if (!user || user->Role != "Customer") {
-        UIColors::printError("Access denied. Customer role required.");
-        InputValidator::pause();
-        return;
-    }
-    
-    RentalManager rm;
-    DressManager dm;
-    int choice;
-    
-    while (true) {
-        UIColors::printHeader("CUSTOMER PORTAL", SCREEN_WIDTH);
-        UIColors::printMenuOption(1, "View My Rentals");
-        UIColors::printMenuOption(2, "View Available Dresses");
-        std::cout << std::endl;
-        UIColors::printMenuOption(0, "Back to Main Menu");
-        UIColors::printSeparator(SCREEN_WIDTH);
-        
-        choice = InputValidator::getInt("Enter your choice: ", 0, 2);
-        if (choice == 0) break;
-        
-        switch (choice) {
-            case 1: {
-                // Show customers first
-                CustomerManager cm;
-                std::vector<Customer> customers = cm.getAllCustomers();
-                if (customers.empty()) {
-                    UIColors::printCentered("No customers found.", SCREEN_WIDTH, UIColors::YELLOW);
-                    InputValidator::pause();
-                    break;
-                }
-                UIColors::printHeader("VIEW MY RENTALS", SCREEN_WIDTH);
-                UIColors::printCentered("Please select your customer ID from the list below:", SCREEN_WIDTH, UIColors::WHITE);
-                cm.displayAllCustomers(customers);
-                
-                int customerID = InputValidator::getInt("\nEnter your Customer ID (0 to cancel): ", 0);
-                if (customerID == 0) {
-                    UIColors::printCentered("View cancelled.", SCREEN_WIDTH, UIColors::YELLOW);
-                    InputValidator::pause();
-                    break;
-                }
-                
-                std::vector<Rental> rentals = rm.getRentalsByCustomer(customerID);
-                if (rentals.empty()) {
-                    UIColors::printInfo("No rentals found.");
-                } else {
-                    for (const auto& rental : rentals) {
-                        rm.displayRental(rental);
-                    }
-                }
-                InputValidator::pause();
-                break;
-            }
-            case 2: {
-                std::vector<Dress> dresses = dm.getAvailableDresses();
-                if (dresses.empty()) {
-                    UIColors::printInfo("No available dresses found.");
-                } else {
-                    dm.displayAllDresses(dresses);
-                }
-                InputValidator::pause();
-                break;
-            }
-        }
-    }
-}
 

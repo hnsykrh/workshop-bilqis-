@@ -432,9 +432,7 @@ void ReportManager::generateProfitMarginReport() {
 
 void ReportManager::displayDashboard() {
     try {
-        std::cout << "\n" << std::string(80, '=') << std::endl;
-        std::cout << "           SYSTEM DASHBOARD" << std::endl;
-        std::cout << std::string(80, '=') << std::endl;
+        UIColors::printHeader("SYSTEM DASHBOARD", SCREEN_WIDTH);
         
         // Total Customers
         sql::ResultSet* res = DatabaseManager::getInstance().executeSelect("SELECT COUNT(*) as count FROM Customers");
@@ -470,15 +468,18 @@ void ReportManager::displayDashboard() {
         if (res && res->next()) monthlyRevenue = res->getDouble("total");
         if (res) delete res;
         
-        std::cout << std::setw(40) << std::left << "Total Customers:" << std::setw(20) << std::right << totalCustomers << std::endl;
-        std::cout << std::setw(40) << std::left << "Total Dresses:" << std::setw(20) << std::right << totalDresses << std::endl;
-        std::cout << std::setw(40) << std::left << "Active Rentals:" << std::setw(20) << std::right << activeRentals << std::endl;
-        std::cout << std::setw(40) << std::left << "Overdue Rentals:" << std::setw(20) << std::right << overdueRentals << std::endl;
-        std::cout << std::setw(40) << std::left << "Monthly Revenue (RM):" << std::setw(20) << std::right 
-                  << std::fixed << std::setprecision(2) << monthlyRevenue << std::endl;
-        std::cout << std::string(80, '=') << std::endl;
+        std::cout << std::endl;
+        UIColors::printCentered("1. Total Customers: " + std::to_string(totalCustomers), SCREEN_WIDTH, UIColors::CYAN);
+        UIColors::printCentered("2. Total Dresses: " + std::to_string(totalDresses), SCREEN_WIDTH, UIColors::CYAN);
+        UIColors::printCentered("3. Active Rentals: " + std::to_string(activeRentals), SCREEN_WIDTH, UIColors::CYAN);
+        UIColors::printCentered("4. Overdue Rentals: " + std::to_string(overdueRentals), SCREEN_WIDTH, UIColors::YELLOW);
+        std::ostringstream revenueStream;
+        revenueStream << std::fixed << std::setprecision(2) << monthlyRevenue;
+        UIColors::printCentered("5. Monthly Revenue (RM): " + revenueStream.str(), SCREEN_WIDTH, UIColors::GREEN);
+        std::cout << std::endl;
+        UIColors::printSeparator(SCREEN_WIDTH);
     } catch (sql::SQLException& e) {
-        std::cerr << "Error displaying dashboard: " << e.what() << std::endl;
+        UIColors::printError("Error displaying dashboard: " + std::string(e.what()));
     }
 }
 
