@@ -247,6 +247,7 @@ void customerManagementMenu() {
                     
                     UIColors::printInfo("Please select a dress from the available list below:");
                     dm.displayAllDresses(availableDresses);
+                    std::cout << std::endl;
                     
                     int dressID = InputValidator::getInt("Enter Dress ID*: ", 1);
                     Dress* selectedDress = dm.getDressByID(dressID);
@@ -256,23 +257,44 @@ void customerManagementMenu() {
                         break;
                     }
                     
-                    std::string dressSize = InputValidator::getString("Dress Size*: ", true, 1, 10);
-                    std::string dressColor = InputValidator::getString("Dress Color*: ", true, 2, 30);
-                    std::string dressType = InputValidator::getString("Type of Dress*: ", true, 2, 50);
                     std::string rentalDate = InputValidator::getDate("Rental Date* (when is the rent wanted): ");
                     int duration = InputValidator::getInt("Rental Duration (1-14 days)*: ", 1, 14);
+                    
+                    // Calculate total price
+                    double totalPrice = selectedDress->RentalPrice * duration;
+                    
+                    // Display order summary
+                    std::cout << std::endl;
+                    UIColors::printCentered("=== ORDER SUMMARY ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                    std::cout << std::endl;
+                    UIColors::printCentered("Customer: " + customer.Name, SCREEN_WIDTH, UIColors::WHITE);
+                    UIColors::printCentered("Dress: " + selectedDress->DressName, SCREEN_WIDTH, UIColors::WHITE);
+                    std::ostringstream priceStream;
+                    priceStream << std::fixed << std::setprecision(2) << totalPrice;
+                    UIColors::printCentered("Total Price: RM " + priceStream.str(), SCREEN_WIDTH, UIColors::GREEN + UIColors::BOLD);
+                    UIColors::printCentered("Rental Date: " + rentalDate + ", Duration: " + std::to_string(duration) + " days", SCREEN_WIDTH, UIColors::WHITE);
+                    std::cout << std::endl;
+                    
+                    // Ask for payment method
+                    UIColors::printCenteredInput("Payment Method (Cash/Credit Card/Debit Card/Online)*: ", SCREEN_WIDTH, UIColors::WHITE);
+                    std::string paymentMethod;
+                    std::getline(std::cin, paymentMethod);
                     
                     // Create rental
                     std::vector<int> dressIDs = {dressID};
                     int rentalID = rm.createRental(newCustomerID, rentalDate, duration, dressIDs);
                     
                     if (rentalID > 0) {
-                        InputValidator::showSuccess("Dress order created successfully! Rental ID: " + std::to_string(rentalID));
-                        UIColors::printInfo("Order Details:");
-                        UIColors::printCentered("Customer: " + customer.Name, SCREEN_WIDTH, UIColors::WHITE);
-                        UIColors::printCentered("Dress: " + selectedDress->DressName, SCREEN_WIDTH, UIColors::WHITE);
-                        UIColors::printCentered("Size: " + dressSize + ", Color: " + dressColor + ", Type: " + dressType, SCREEN_WIDTH, UIColors::WHITE);
-                        UIColors::printCentered("Rental Date: " + rentalDate + ", Duration: " + std::to_string(duration) + " days", SCREEN_WIDTH, UIColors::WHITE);
+                        // Create payment
+                        PaymentManager pm;
+                        std::string paymentDate = rentalDate; // Use rental date as payment date
+                        if (pm.createPayment(rentalID, totalPrice, paymentMethod, paymentDate, "")) {
+                            InputValidator::showSuccess("Dress order and payment created successfully!");
+                            UIColors::printCentered("Rental ID: " + std::to_string(rentalID), SCREEN_WIDTH, UIColors::CYAN);
+                            UIColors::printCentered("Payment Method: " + paymentMethod, SCREEN_WIDTH, UIColors::CYAN);
+                        } else {
+                            InputValidator::showWarning("Rental created but payment processing failed. Please process payment manually.");
+                        }
                     } else {
                         InputValidator::showError("Failed to create dress order.");
                     }
