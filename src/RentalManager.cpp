@@ -418,76 +418,50 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
 }
 
 void RentalManager::displayRental(const Rental& rental) {
-    const int BOX_WIDTH = 60;
-    int padding = (SCREEN_WIDTH - BOX_WIDTH) / 2;
-    if (padding < 0) padding = 0;
+    // Use plain ASCII (no ANSI) to keep widths accurate in all consoles
+    const int BOX_WIDTH = 64;       // total width including borders
+    const int LABEL_WIDTH = 15;     // width allocated to labels
+    const int VALUE_WIDTH = BOX_WIDTH - LABEL_WIDTH - 4; // 2 borders + 2 spaces
     
-    std::cout << std::endl;
-    std::cout << std::string(padding, ' ');
-    UIColors::printSeparator(BOX_WIDTH);
+    auto padCenter = [](int width) {
+        if (SCREEN_WIDTH <= width) return 0;
+        int pad = (SCREEN_WIDTH - width) / 2;
+        return pad < 0 ? 0 : pad;
+    };
     
-    std::ostringstream line1;
-    line1 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Rental ID:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << rental.RentalID 
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line1.str() << std::endl;
+    auto borderLine = [=]() {
+        return "+" + std::string(BOX_WIDTH - 2, '=') + "+";
+    };
     
-    std::ostringstream line2;
-    line2 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Customer ID:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << rental.CustomerID 
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line2.str() << std::endl;
+    auto line = [=](const std::string& label, const std::string& value) {
+        std::ostringstream oss;
+        oss << "|" << " "
+            << std::setw(LABEL_WIDTH) << std::left << label
+            << " "
+            << std::setw(VALUE_WIDTH) << std::left << value
+            << "|";
+        return oss.str();
+    };
     
-    std::ostringstream line3;
-    line3 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Rental Date:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << rental.RentalDate 
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line3.str() << std::endl;
+    auto amountFmt = [](double v) {
+        std::ostringstream oss;
+        oss << "RM " << std::fixed << std::setprecision(2) << v;
+        return oss.str();
+    };
     
-    std::ostringstream line4;
-    line4 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Due Date:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << rental.DueDate 
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line4.str() << std::endl;
+    int padding = padCenter(BOX_WIDTH);
+    std::string padStr(padding, ' ');
     
-    std::ostringstream line5;
-    line5 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Return Date:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << (rental.ReturnDate.empty() ? "Not Returned" : rental.ReturnDate)
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line5.str() << std::endl;
-    
-    std::ostringstream amountStream;
-    amountStream << std::fixed << std::setprecision(2) << "RM " << rental.TotalAmount;
-    std::ostringstream line6;
-    line6 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Total Amount:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << amountStream.str()
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line6.str() << std::endl;
-    
-    std::ostringstream feeStream;
-    feeStream << std::fixed << std::setprecision(2) << "RM " << rental.LateFee;
-    std::ostringstream line7;
-    line7 << UIColors::colorize("|", UIColors::CYAN) << " "
-          << UIColors::colorize("Late Fee:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << feeStream.str()
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line7.str() << std::endl;
-    
-    std::ostringstream line8;
-    line8 << UIColors::colorize("|", UIColors::CYAN) << " " 
-          << UIColors::colorize("Status:", UIColors::CYAN) << " " 
-          << std::setw(40) << std::left << rental.Status 
-          << UIColors::colorize("|", UIColors::CYAN);
-    std::cout << std::string(padding, ' ') << line8.str() << std::endl;
-    
-    std::cout << std::string(padding, ' ');
-    UIColors::printSeparator(BOX_WIDTH);
+    std::cout << "\n" << padStr << borderLine() << std::endl;
+    std::cout << padStr << line("Rental ID:", std::to_string(rental.RentalID)) << std::endl;
+    std::cout << padStr << line("Customer ID:", std::to_string(rental.CustomerID)) << std::endl;
+    std::cout << padStr << line("Rental Date:", rental.RentalDate) << std::endl;
+    std::cout << padStr << line("Due Date:", rental.DueDate) << std::endl;
+    std::cout << padStr << line("Return Date:", rental.ReturnDate.empty() ? "Not Returned" : rental.ReturnDate) << std::endl;
+    std::cout << padStr << line("Total Amount:", amountFmt(rental.TotalAmount)) << std::endl;
+    std::cout << padStr << line("Late Fee:", amountFmt(rental.LateFee)) << std::endl;
+    std::cout << padStr << line("Status:", rental.Status) << std::endl;
+    std::cout << padStr << borderLine() << std::endl;
 }
 
 void RentalManager::displayRentalDetails(int rentalID) {
