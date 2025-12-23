@@ -283,52 +283,67 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
     UIColors::printCentered("PAYMENT LIST", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
     UIColors::printSeparator(SCREEN_WIDTH);
     
-    // Calculate column widths to fit within SCREEN_WIDTH with perfect square borders
-    int col1 = 9, col2 = 11, col3 = 13, col4 = 16, col5 = 13, col6 = 13, col7 = 16;
-    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + 8; // +8 for 7 separators + 1
+    // Column widths (plain ASCII to avoid ANSI width drift)
+    const int col1 = 8;   // Pay ID
+    const int col2 = 10;  // Rental ID
+    const int col3 = 12;  // Amount
+    const int col4 = 15;  // Method
+    const int col5 = 12;  // Date
+    const int col6 = 12;  // Status
+    const int col7 = 18;  // Transaction Ref
+    const int numCols = 7;
+    
+    auto fit = [](const std::string& value, int width) {
+        if (static_cast<int>(value.size()) <= width) return value;
+        if (width <= 1) return value.substr(0, width);
+        return value.substr(0, width - 1) + ".";
+    };
+    
+    // Build border line
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + numCols + 1; // separators + ends
     int padding = (SCREEN_WIDTH - totalWidth) / 2;
     if (padding < 0) padding = 0;
+    auto border = [=]() {
+        std::ostringstream oss;
+        oss << std::string(padding, ' ') << "+";
+        const int widths[] = {col1, col2, col3, col4, col5, col6, col7};
+        for (int w : widths) {
+            oss << std::string(w, '-') << "+";
+        }
+        return oss.str();
+    };
     
-    // Create border line with perfect alignment - ensure consistent width
-    std::string borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
-    
-    // Print top border
+    std::string borderLine = border();
     std::cout << borderLine << std::endl;
     
-    // Print header row with perfect alignment
+    // Header row
     std::ostringstream headerStream;
     headerStream << std::string(padding, ' ') << "|"
-                 << std::setw(col1) << std::left << UIColors::colorize("Pay ID", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col2) << std::left << UIColors::colorize("Rental ID", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col3) << std::left << UIColors::colorize("Amount", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col4) << std::left << UIColors::colorize("Method", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col5) << std::left << UIColors::colorize("Date", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col6) << std::left << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
-                 << "|" << std::setw(col7) << std::left << UIColors::colorize("Transaction Ref", UIColors::BOLD + UIColors::CYAN)
-                 << "|";
+                 << std::setw(col1) << std::left << "Pay ID" << "|"
+                 << std::setw(col2) << std::left << "Rental ID" << "|"
+                 << std::setw(col3) << std::left << "Amount" << "|"
+                 << std::setw(col4) << std::left << "Method" << "|"
+                 << std::setw(col5) << std::left << "Date" << "|"
+                 << std::setw(col6) << std::left << "Status" << "|"
+                 << std::setw(col7) << std::left << "Transaction Ref" << "|";
     std::cout << headerStream.str() << std::endl;
     
-    // Print separator line after header
     std::cout << borderLine << std::endl;
     
-    // Print data rows with perfect alignment - ensure all rows have same width
+    // Rows
     for (const auto& payment : payments) {
         std::ostringstream rowStream;
         rowStream << std::string(padding, ' ') << "|"
-                  << std::setw(col1) << std::left << payment.PaymentID
-                  << "|" << std::setw(col2) << std::left << payment.RentalID
-                  << "|" << std::setw(col3) << std::left << std::fixed << std::setprecision(2) << payment.Amount
-                  << "|" << std::setw(col4) << std::left << (payment.PaymentMethod.length() > 14 ? payment.PaymentMethod.substr(0, 14) : payment.PaymentMethod)
-                  << "|" << std::setw(col5) << std::left << payment.PaymentDate
-                  << "|" << std::setw(col6) << std::left << (payment.Status.length() > 11 ? payment.Status.substr(0, 11) : payment.Status)
-                  << "|" << std::setw(col7) << std::left << (payment.TransactionReference.length() > 14 ? 
-                                                              payment.TransactionReference.substr(0, 14) : 
-                                                              payment.TransactionReference)
-                  << "|";
+                  << std::setw(col1) << std::left << payment.PaymentID << "|"
+                  << std::setw(col2) << std::left << payment.RentalID << "|"
+                  << std::setw(col3) << std::left << std::fixed << std::setprecision(2) << payment.Amount << "|"
+                  << std::setw(col4) << std::left << fit(payment.PaymentMethod, col4) << "|"
+                  << std::setw(col5) << std::left << fit(payment.PaymentDate, col5) << "|"
+                  << std::setw(col6) << std::left << fit(payment.Status, col6) << "|"
+                  << std::setw(col7) << std::left << fit(payment.TransactionReference, col7) << "|";
         std::cout << rowStream.str() << std::endl;
     }
     
-    // Print bottom border - ensure it matches top border exactly
     std::cout << borderLine << std::endl;
     std::cout << std::endl;
 }
