@@ -17,6 +17,39 @@
 #include <unistd.h>
 #endif
 
+void InputValidator::printTip(const std::string& tip) {
+    UIColors::printInfo("Tip: " + tip);
+}
+
+std::string InputValidator::formatRangeTip(int min, int max) {
+    std::ostringstream oss;
+    if (min != INT_MIN && max != INT_MAX) {
+        oss << "Enter a value between " << min << " and " << max << ".";
+    } else if (min != INT_MIN) {
+        oss << "Enter a value of at least " << min << ".";
+    } else if (max != INT_MAX) {
+        oss << "Enter a value no more than " << max << ".";
+    } else {
+        oss << "Enter a whole number without letters or symbols.";
+    }
+    return oss.str();
+}
+
+std::string InputValidator::formatRangeTip(double min, double max) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2);
+    if (min != (std::numeric_limits<double>::lowest()) && max != (std::numeric_limits<double>::max)()) {
+        oss << "Enter a value between " << min << " and " << max << ".";
+    } else if (min != (std::numeric_limits<double>::lowest())) {
+        oss << "Enter a value of at least " << min << ".";
+    } else if (max != (std::numeric_limits<double>::max)()) {
+        oss << "Enter a value no more than " << max << ".";
+    } else {
+        oss << "Enter a numeric value without commas.";
+    }
+    return oss.str();
+}
+
 int InputValidator::getInt(const std::string& prompt, int min, int max, bool allowRetry) {
     int value;
     std::string input;
@@ -30,6 +63,7 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
         
         if (input.empty()) {
             UIColors::printCentered("Input cannot be empty. Please enter a number.", SCREEN_WIDTH, UIColors::RED);
+            printTip(formatRangeTip(min, max));
             if (!allowRetry) return 0;
             continue;
         }
@@ -39,6 +73,7 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
             
             if (value < min || value > max) {
                 UIColors::printCentered("Value must be between " + std::to_string(min) + " and " + std::to_string(max) + ".", SCREEN_WIDTH, UIColors::RED);
+                printTip(formatRangeTip(min, max));
                 if (!allowRetry) return 0;
                 continue;
             }
@@ -46,6 +81,7 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
             return value;
         } catch (const std::exception&) {
             UIColors::printCentered("Invalid input. Please enter a valid number.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Use digits only (no spaces or letters).");
             if (!allowRetry) return 0;
         }
     }
@@ -64,6 +100,7 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
         
         if (input.empty()) {
             UIColors::printCentered("Input cannot be empty. Please enter a number.", SCREEN_WIDTH, UIColors::RED);
+            printTip(formatRangeTip(min, max));
             if (!allowRetry) return 0.0;
             continue;
         }
@@ -73,6 +110,7 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
             
             if (value < min || value > max) {
                 UIColors::printCentered("Value must be between " + std::to_string(min) + " and " + std::to_string(max) + ".", SCREEN_WIDTH, UIColors::RED);
+                printTip(formatRangeTip(min, max));
                 if (!allowRetry) return 0.0;
                 continue;
             }
@@ -80,6 +118,7 @@ double InputValidator::getDouble(const std::string& prompt, double min, double m
             return value;
         } catch (const std::exception&) {
             UIColors::printCentered("Invalid input. Please enter a valid number.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Enter a numeric value such as 10.00 (avoid letters and commas).");
             if (!allowRetry) return 0.0;
         }
     }
@@ -101,16 +140,19 @@ std::string InputValidator::getString(const std::string& prompt, bool required, 
         
         if (required && input.empty()) {
             UIColors::printCentered("This field is required and cannot be empty.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Type something meaningful; avoid leaving this blank.");
             continue;
         }
         
         if (input.length() < minLength) {
             UIColors::printCentered("Input must be at least " + std::to_string(minLength) + " characters long.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Add a few more characters so it meets the minimum length.");
             continue;
         }
         
         if (input.length() > maxLength) {
             UIColors::printCentered("Input must not exceed " + std::to_string(maxLength) + " characters.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Keep it concise; remove extra spaces or words.");
             continue;
         }
         
@@ -128,12 +170,14 @@ std::string InputValidator::getDate(const std::string& prompt, bool allowRetry) 
         
         if (input.empty()) {
             showError("Date cannot be empty.");
+            printTip("Enter the date in YYYY-MM-DD format, e.g., 2025-01-15.");
             if (!allowRetry) return "";
             continue;
         }
         
         if (!isValidDate(input)) {
             showError("Invalid date format. Please use YYYY-MM-DD format (e.g., 2000-01-15).");
+            printTip("Double-check the month/day and include leading zeros (04 for April).");
             if (!allowRetry) return "";
             continue;
         }
@@ -142,27 +186,60 @@ std::string InputValidator::getDate(const std::string& prompt, bool allowRetry) 
     }
 }
 
-bool InputValidator::isValidEmail(const std::string& email) {
-    if (email.empty()) return false;
+bool InputValidator::isValidEmail(const std::string& email, std::string* tipOut) {
+    if (email.empty()) {
+        if (tipOut) *tipOut = "Email cannot be empty when required.";
+        return false;
+    }
     
     std::regex pattern(R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})");
-    return std::regex_match(email, pattern);
+    bool valid = std::regex_match(email, pattern);
+    if (!valid) {
+        if (tipOut) {
+            *tipOut = "Use a format like user@example.com (letters/numbers only).";
+        } else {
+            printTip("Use a format like user@example.com (letters/numbers only).");
+        }
+    }
+    return valid;
 }
 
-bool InputValidator::isValidPhone(const std::string& phone) {
-    if (phone.empty()) return false;
+bool InputValidator::isValidPhone(const std::string& phone, std::string* tipOut) {
+    if (phone.empty()) {
+        if (tipOut) *tipOut = "Phone number cannot be empty when required.";
+        return false;
+    }
     
     // Allow digits, spaces, hyphens, parentheses, and +
     std::regex pattern(R"([+]?[\d\s\-\(\)]{8,20})");
-    return std::regex_match(phone, pattern);
+    bool valid = std::regex_match(phone, pattern);
+    if (!valid) {
+        if (tipOut) {
+            *tipOut = "Keep 8-20 characters; digits only with optional +, spaces, or dashes.";
+        } else {
+            printTip("Use 8-20 digits; you may include +, spaces, or dashes.");
+        }
+    }
+    return valid;
 }
 
-bool InputValidator::isValidIC(const std::string& ic) {
-    if (ic.empty()) return false;
+bool InputValidator::isValidIC(const std::string& ic, std::string* tipOut) {
+    if (ic.empty()) {
+        if (tipOut) *tipOut = "IC number cannot be empty when required.";
+        return false;
+    }
     
     // Basic validation: alphanumeric, 8-20 characters
     std::regex pattern(R"([A-Za-z0-9]{8,20})");
-    return std::regex_match(ic, pattern);
+    bool valid = std::regex_match(ic, pattern);
+    if (!valid) {
+        if (tipOut) {
+            *tipOut = "Use 8-20 letters or numbers with no spaces.";
+        } else {
+            printTip("Use 8-20 letters or numbers with no spaces.");
+        }
+    }
+    return valid;
 }
 
 bool InputValidator::isValidPassword(const std::string& password, std::string& errorMessage) {
@@ -267,6 +344,7 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
         
         if (password.empty()) {
             UIColors::printCentered("Password cannot be empty.", SCREEN_WIDTH, UIColors::RED);
+            printTip("Type your password, then press Enter.");
             std::cout << std::endl;
             continue;
         }
@@ -281,6 +359,7 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
             return password;
         } else {
             UIColors::printCentered(errorMsg, SCREEN_WIDTH, UIColors::RED);
+            printTip("Try mixing uppercase, lowercase, digits, and symbols.");
             std::cout << std::endl;
             continue;
         }
@@ -296,7 +375,16 @@ bool InputValidator::confirm(const std::string& message) {
     // Convert to lowercase
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
     
-    return input == "y" || input == "yes";
+    if (input.empty()) {
+        return false;
+    }
+    
+    if (input == "y" || input == "yes") return true;
+    if (input == "n" || input == "no") return false;
+    
+    UIColors::printCentered("Please respond with 'y' or 'n'.", SCREEN_WIDTH, UIColors::RED);
+    printTip("Type y for yes or n for no, then press Enter.");
+    return false;
 }
 
 void InputValidator::clearInputBuffer() {

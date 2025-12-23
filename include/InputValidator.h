@@ -6,6 +6,7 @@
 #include <sstream>
 #include <regex>
 #include <limits>
+#include <climits>
 
 class InputValidator {
 public:
@@ -24,13 +25,13 @@ public:
     static std::string getDate(const std::string& prompt, bool allowRetry = true);
     
     // Email validation
-    static bool isValidEmail(const std::string& email);
+    static bool isValidEmail(const std::string& email, std::string* tipOut = nullptr);
     
     // Phone validation
-    static bool isValidPhone(const std::string& phone);
+    static bool isValidPhone(const std::string& phone, std::string* tipOut = nullptr);
     
     // IC number validation (basic)
-    static bool isValidIC(const std::string& ic);
+    static bool isValidIC(const std::string& ic, std::string* tipOut = nullptr);
     
     // Password validation with security requirements
     static bool isValidPassword(const std::string& password, std::string& errorMessage);
@@ -65,6 +66,11 @@ public:
     // Validate date range
     static bool isDateInRange(const std::string& date, const std::string& minDate = "", 
                               const std::string& maxDate = "");
+
+private:
+    static void printTip(const std::string& tip);
+    static std::string formatRangeTip(int min, int max);
+    static std::string formatRangeTip(double min, double max);
 };
 
 #endif

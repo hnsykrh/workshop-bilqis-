@@ -35,6 +35,68 @@ void ReportManager::displayBarChart(const std::string& title, const std::vector<
     std::cout << std::string(80, '=') << std::endl;
 }
 
+void ReportManager::displaySummaryList(const std::vector<std::string>& items) {
+    if (items.empty()) return;
+    
+    std::cout << "\n" << std::string(60, '=') << std::endl;
+    std::cout << "Helpful Summary" << std::endl;
+    std::cout << std::string(60, '=') << std::endl;
+    int idx = 1;
+    for (const auto& item : items) {
+        std::cout << std::setw(3) << idx++ << ". " << item << std::endl;
+    }
+    std::cout << std::string(60, '=') << std::endl;
+}
+
+void ReportManager::displayTextChart(const std::string& title, const std::vector<std::pair<std::string, double>>& data) {
+    if (data.empty()) {
+        std::cout << "\nNo data available for text chart." << std::endl;
+        return;
+    }
+    
+    double maxValue = 0.0;
+    for (const auto& pair : data) {
+        if (pair.second > maxValue) maxValue = pair.second;
+    }
+    
+    const int barWidth = 20;
+    std::cout << "\n" << title << std::endl;
+    std::cout << std::string(60, '-') << std::endl;
+    
+    for (const auto& pair : data) {
+        int barLength = maxValue > 0 ? static_cast<int>(std::round((pair.second / maxValue) * barWidth)) : 0;
+        std::ostringstream amount;
+        amount << " (RM " << std::fixed << std::setprecision(2) << pair.second << ")";
+        std::cout << std::setw(12) << std::left << pair.first.substr(0, 10)
+                  << ": " << std::string(barLength, '*') << amount.str() << std::endl;
+    }
+    
+    std::cout << std::string(60, '-') << std::endl;
+}
+
+void ReportManager::displayTextGraphSummary(const std::vector<std::pair<std::string, double>>& data) {
+    if (data.empty()) return;
+    
+    std::cout << "\nSales Summary (Text-Based Trend)" << std::endl;
+    for (size_t i = 0; i < data.size(); ++i) {
+        const auto& entry = data[i];
+        std::ostringstream line;
+        line << "- " << entry.first << " sales: RM " << std::fixed << std::setprecision(2) << entry.second;
+        
+        if (i > 0 && data[i-1].second > 0) {
+            double diff = entry.second - data[i-1].second;
+            double pct = (diff / data[i-1].second) * 100.0;
+            std::ostringstream change;
+            change << " (" << std::fixed << std::setprecision(0) << std::abs(pct) << "% "
+                   << (pct >= 0 ? "increase" : "decrease") << " from " << data[i-1].first << ")";
+            std::string color = pct >= 0 ? UIColors::GREEN : UIColors::RED;
+            UIColors::printCentered(line.str() + change.str(), 80, color);
+        } else {
+            UIColors::printCentered(line.str(), 80, UIColors::WHITE);
+        }
+    }
+}
+
 void ReportManager::generateMonthlySalesReport(const std::string& year) {
     try {
         std::string query = 
@@ -59,6 +121,9 @@ void ReportManager::generateMonthlySalesReport(const std::string& year) {
         std::vector<std::pair<std::string, double>> chartData;
         double totalYearSales = 0.0;
         int totalRentals = 0;
+        std::vector<std::pair<std::string, double>> monthlySales;
+        std::string bestMonth;
+        double bestSales = -1.0;
         
         while (res && res->next()) {
             std::string month = res->getString("Month");
@@ -70,8 +135,14 @@ void ReportManager::generateMonthlySalesReport(const std::string& year) {
                       << std::setw(20) << count << std::endl;
             
             chartData.push_back({month, sales});
+            monthlySales.push_back({month, sales});
             totalYearSales += sales;
             totalRentals += count;
+            
+            if (sales > bestSales) {
+                bestSales = sales;
+                bestMonth = month;
+            }
         }
         
         std::cout << std::string(80, '=') << std::endl;
@@ -82,6 +153,17 @@ void ReportManager::generateMonthlySalesReport(const std::string& year) {
         if (res) delete res;
         
         displayBarChart("\nMonthly Sales Trend", chartData);
+        
+        std::ostringstream totalSalesStr;
+        totalSalesStr << "Total Monthly Sales: RM " << std::fixed << std::setprecision(2) << totalYearSales;
+        std::vector<std::string> summaryItems = {
+            totalSalesStr.str(),
+            "Total Rental Count: " + std::to_string(totalRentals),
+            "Best Month: " + (bestMonth.empty() ? "N/A" : bestMonth)
+        };
+        displaySummaryList(summaryItems);
+        displayTextChart("Text-Based Monthly Sales Chart", monthlySales);
+        displayTextGraphSummary(monthlySales);
     } catch (sql::SQLException& e) {
         std::cerr << "Error generating monthly sales report: " << e.what() << std::endl;
     }

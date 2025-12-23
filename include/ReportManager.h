@@ -46,6 +46,9 @@ public:
     void generateCustomerLoyaltyReport();
     void generateProfitMarginReport();
     void displayBarChart(const std::string& title, const std::vector<std::pair<std::string, double>>& data);
+    void displayTextChart(const std::string& title, const std::vector<std::pair<std::string, double>>& data);
+    void displayTextGraphSummary(const std::vector<std::pair<std::string, double>>& data);
+    void displaySummaryList(const std::vector<std::string>& items);
     void displayDashboard();
 };
 
