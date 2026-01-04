@@ -312,7 +312,7 @@ void PaymentManager::displayAllPayments(const std::vector<Payment>& payments) {
     };
     
     // Helper to pad colored text to exact width
-    auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+    auto padColored = [=](const std::string& coloredText, int targetWidth) -> std::string {
         int actualWidth = plainWidth(coloredText);
         if (actualWidth >= targetWidth) return coloredText;
         return coloredText + std::string(targetWidth - actualWidth, ' ');

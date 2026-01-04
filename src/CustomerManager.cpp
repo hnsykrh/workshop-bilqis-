@@ -302,7 +302,7 @@ void CustomerManager::displayCustomer(const Customer& customer) {
     };
     
     // Helper to pad colored text to exact width
-    auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+    auto padColored = [=](const std::string& coloredText, int targetWidth) -> std::string {
         int actualWidth = plainWidth(coloredText);
         if (actualWidth >= targetWidth) return coloredText;
         return coloredText + std::string(targetWidth - actualWidth, ' ');
@@ -376,7 +376,7 @@ void CustomerManager::displayCustomer(const Customer& customer) {
         };
         
         // Helper to pad colored text to exact width
-        auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+        auto padColored = [=](const std::string& coloredText, int targetWidth) -> std::string {
             int actualWidth = plainWidth(coloredText);
             if (actualWidth >= targetWidth) return coloredText;
             return coloredText + std::string(targetWidth - actualWidth, ' ');
@@ -516,7 +516,7 @@ void CustomerManager::displayAllCustomers(const std::vector<Customer>& customers
     };
     
     // Helper to pad colored text to exact width
-    auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+    auto padColored = [=](const std::string& coloredText, int targetWidth) -> std::string {
         int actualWidth = plainWidth(coloredText);
         if (actualWidth >= targetWidth) return coloredText;
         return coloredText + std::string(targetWidth - actualWidth, ' ');
