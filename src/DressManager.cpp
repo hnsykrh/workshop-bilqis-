@@ -359,6 +359,25 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
     int padding = (SCREEN_WIDTH - totalWidth) / 2;
     if (padding < 0) padding = 0;
     
+    // Helper to get plain text width (strip ANSI codes)
+    auto plainWidth = [](const std::string& text) -> int {
+        int width = 0;
+        bool inEscape = false;
+        for (char c : text) {
+            if (c == '\033') inEscape = true;
+            else if (inEscape && c == 'm') inEscape = false;
+            else if (!inEscape) width++;
+        }
+        return width;
+    };
+    
+    // Helper to pad colored text to exact width
+    auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+        int actualWidth = plainWidth(coloredText);
+        if (actualWidth >= targetWidth) return coloredText;
+        return coloredText + std::string(targetWidth - actualWidth, ' ');
+    };
+    
     // Create border line
     std::string borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
     
@@ -367,15 +386,15 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
     
     // Print header with proper spacing and borders
     std::cout << std::string(padding, ' ') << "|"
-              << std::setw(col1) << std::left << UIColors::colorize("ID", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col2) << std::left << UIColors::colorize("Name", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col3) << std::left << UIColors::colorize("Category", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col4) << std::left << UIColors::colorize("Size", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col5) << std::left << UIColors::colorize("Color", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col6) << std::left << UIColors::colorize("Price", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col7) << std::left << UIColors::colorize("Condition", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::setw(col8) << std::left << UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN)
-              << "|" << std::endl;
+              << padColored(UIColors::colorize("ID", UIColors::BOLD + UIColors::CYAN), col1) << "|"
+              << padColored(UIColors::colorize("Name", UIColors::BOLD + UIColors::CYAN), col2) << "|"
+              << padColored(UIColors::colorize("Category", UIColors::BOLD + UIColors::CYAN), col3) << "|"
+              << padColored(UIColors::colorize("Size", UIColors::BOLD + UIColors::CYAN), col4) << "|"
+              << padColored(UIColors::colorize("Color", UIColors::BOLD + UIColors::CYAN), col5) << "|"
+              << padColored(UIColors::colorize("Price", UIColors::BOLD + UIColors::CYAN), col6) << "|"
+              << padColored(UIColors::colorize("Condition", UIColors::BOLD + UIColors::CYAN), col7) << "|"
+              << padColored(UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN), col8) << "|"
+              << std::endl;
     
     // Print separator after header
     std::cout << borderLine << std::endl;

@@ -479,33 +479,65 @@ void RentalManager::displayRentalDetails(int rentalID) {
         UIColors::printCentered("Rental Items", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
         UIColors::printSeparator(SCREEN_WIDTH);
         
+        // Calculate column widths with borders
         int col1 = 10, col2 = 12, col3 = 15, col4 = 35;
-        int totalWidth = col1 + col2 + col3 + col4;
+        int totalWidth = col1 + col2 + col3 + col4 + 5; // +5 for 4 separators + 1
         int padding = (SCREEN_WIDTH - totalWidth) / 2;
         if (padding < 0) padding = 0;
         
-        std::cout << std::string(padding, ' ')
-                  << std::setw(col1) << UIColors::colorize("Item ID", UIColors::BOLD + UIColors::CYAN)
-                  << std::setw(col2) << UIColors::colorize("Dress ID", UIColors::BOLD + UIColors::CYAN)
-                  << std::setw(col3) << UIColors::colorize("Rental Price", UIColors::BOLD + UIColors::CYAN)
-                  << std::setw(col4) << UIColors::colorize("Dress Name", UIColors::BOLD + UIColors::CYAN) << std::endl;
-        UIColors::printSeparator(SCREEN_WIDTH);
+        // Create border line
+        std::string borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
+        
+        // Print top border
+        std::cout << borderLine << std::endl;
+        
+        // Helper to get plain text width (strip ANSI codes)
+        auto plainWidth = [](const std::string& text) -> int {
+            int width = 0;
+            bool inEscape = false;
+            for (char c : text) {
+                if (c == '\033') inEscape = true;
+                else if (inEscape && c == 'm') inEscape = false;
+                else if (!inEscape) width++;
+            }
+            return width;
+        };
+        
+        // Helper to pad colored text to exact width
+        auto padColored = [](const std::string& coloredText, int targetWidth) -> std::string {
+            int actualWidth = plainWidth(coloredText);
+            if (actualWidth >= targetWidth) return coloredText;
+            return coloredText + std::string(targetWidth - actualWidth, ' ');
+        };
+        
+        // Print header with proper spacing and borders
+        std::cout << std::string(padding, ' ') << "|"
+                  << padColored(UIColors::colorize("Item ID", UIColors::BOLD + UIColors::CYAN), col1) << "|"
+                  << padColored(UIColors::colorize("Dress ID", UIColors::BOLD + UIColors::CYAN), col2) << "|"
+                  << padColored(UIColors::colorize("Rental Price", UIColors::BOLD + UIColors::CYAN), col3) << "|"
+                  << padColored(UIColors::colorize("Dress Name", UIColors::BOLD + UIColors::CYAN), col4) << "|"
+                  << std::endl;
+        
+        // Print separator after header
+        std::cout << borderLine << std::endl;
         
         DressManager dm;
         for (const auto& item : items) {
             Dress* dress = dm.getDressByID(item.DressID);
-            std::cout << std::string(padding, ' ')
-                      << std::setw(col1) << item.RentalItemID
-                      << std::setw(col2) << item.DressID
-                      << std::setw(col3) << std::fixed << std::setprecision(2) << item.RentalPrice;
-            if (dress) {
-                std::cout << std::setw(col4) << (dress->DressName.length() > 33 ? dress->DressName.substr(0, 33) : dress->DressName);
-                delete dress;
-            } else {
-                std::cout << std::setw(col4) << "N/A";
-            }
-            std::cout << std::endl;
+            std::ostringstream priceStream;
+            priceStream << std::fixed << std::setprecision(2) << "RM " << item.RentalPrice;
+            
+            std::cout << std::string(padding, ' ') << "|"
+                      << std::setw(col1) << std::left << item.RentalItemID
+                      << "|" << std::setw(col2) << std::left << item.DressID
+                      << "|" << std::setw(col3) << std::left << priceStream.str()
+                      << "|" << std::setw(col4) << std::left << (dress ? (dress->DressName.length() > col4 - 1 ? dress->DressName.substr(0, col4 - 1) : dress->DressName) : "N/A")
+                      << "|" << std::endl;
+            if (dress) delete dress;
         }
+        
+        // Print bottom border
+        std::cout << borderLine << std::endl;
         UIColors::printSeparator(SCREEN_WIDTH);
     }
     delete rental;
