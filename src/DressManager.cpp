@@ -5,6 +5,17 @@
 #include <iomanip>
 #include <sstream>
 
+// Helper function to safely get CleaningStatus from result set
+static std::string safeGetCleaningStatus(sql::ResultSet* res) {
+    try {
+        std::string status = res->getString("CleaningStatus");
+        return status.empty() ? "Clean" : status;
+    } catch (sql::SQLException&) {
+        // Column doesn't exist, return default
+        return "Clean";
+    }
+}
+
 bool DressManager::createDress(const Dress& dress) {
     try {
         sql::Connection* conn = DatabaseManager::getInstance().getConnection();
@@ -63,8 +74,7 @@ Dress* DressManager::getDressByID(int dressID) {
             dress->RentalPrice = res->getDouble("RentalPrice");
             dress->ConditionStatus = res->getString("ConditionStatus");
             dress->AvailabilityStatus = res->getString("AvailabilityStatus");
-            dress->CleaningStatus = res->getString("CleaningStatus");
-            if (dress->CleaningStatus.empty()) dress->CleaningStatus = "Clean";
+            dress->CleaningStatus = safeGetCleaningStatus(res);
             delete pstmt;
             delete res;
             return dress;
@@ -95,8 +105,7 @@ std::vector<Dress> DressManager::getAllDresses() {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
-            dress.CleaningStatus = res->getString("CleaningStatus");
-            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
+            dress.CleaningStatus = safeGetCleaningStatus(res);
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -123,8 +132,7 @@ std::vector<Dress> DressManager::getAvailableDresses() {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
-            dress.CleaningStatus = res->getString("CleaningStatus");
-            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
+            dress.CleaningStatus = safeGetCleaningStatus(res);
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -162,8 +170,7 @@ std::vector<Dress> DressManager::searchDresses(const std::string& searchTerm) {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
-            dress.CleaningStatus = res->getString("CleaningStatus");
-            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
+            dress.CleaningStatus = safeGetCleaningStatus(res);
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -198,8 +205,7 @@ std::vector<Dress> DressManager::getDressesByCategory(const std::string& categor
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
-            dress.CleaningStatus = res->getString("CleaningStatus");
-            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
+            dress.CleaningStatus = safeGetCleaningStatus(res);
             dresses.push_back(dress);
         }
         if (res) delete res;
