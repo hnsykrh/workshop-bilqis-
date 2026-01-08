@@ -29,7 +29,7 @@ bool showLoginScreen() {
         // Sign Up option
         int centerPos = SCREEN_WIDTH / 2;
         UIColors::printCentered("1. Login", SCREEN_WIDTH, UIColors::WHITE);
-        UIColors::printCentered("2. Sign Up (Create New Staff Account)", SCREEN_WIDTH, UIColors::CYAN);
+        UIColors::printCentered("2. Sign Up (Create New Staff Account)", SCREEN_WIDTH, UIColors::WHITE);
         UIColors::printSeparator(SCREEN_WIDTH);
         std::cout << std::endl;
         
