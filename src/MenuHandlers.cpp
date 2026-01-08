@@ -26,13 +26,89 @@ bool showLoginScreen() {
         UIColors::printSeparator(SCREEN_WIDTH);
         std::cout << std::endl;
         
+        // Sign Up option
+        int centerPos = SCREEN_WIDTH / 2;
+        UIColors::printCentered("1. Login", SCREEN_WIDTH, UIColors::WHITE);
+        UIColors::printCentered("2. Sign Up (Create New Staff Account)", SCREEN_WIDTH, UIColors::CYAN);
+        UIColors::printSeparator(SCREEN_WIDTH);
+        std::cout << std::endl;
+        
+        UIColors::printCenteredInput("Select option (1 or 2): ", SCREEN_WIDTH, UIColors::WHITE);
+        std::string optionStr;
+        std::getline(std::cin, optionStr);
+        
+        // Handle Sign Up
+        if (optionStr == "2") {
+            UIColors::printHeader("SIGN UP - CREATE NEW STAFF ACCOUNT", SCREEN_WIDTH);
+            
+            User newUser;
+            newUser.Username = InputValidator::getString("Username*: ", true, 3, 50);
+            
+            // Check if username already exists
+            try {
+                sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+                if (conn) {
+                    sql::PreparedStatement* pstmt = conn->prepareStatement(
+                        "SELECT COUNT(*) as count FROM Users WHERE Username = ?"
+                    );
+                    pstmt->setString(1, newUser.Username);
+                    sql::ResultSet* res = pstmt->executeQuery();
+                    if (res && res->next() && res->getInt("count") > 0) {
+                        UIColors::printCentered("Username already exists! Please choose another username.", SCREEN_WIDTH, UIColors::RED);
+                        delete pstmt;
+                        if (res) delete res;
+                        InputValidator::pause();
+                        continue;
+                    }
+                    delete pstmt;
+                    if (res) delete res;
+                }
+            } catch (sql::SQLException& e) {
+                UIColors::printCentered("Error checking username: " + std::string(e.what()), SCREEN_WIDTH, UIColors::RED);
+                InputValidator::pause();
+                continue;
+            }
+            
+            std::string password = InputValidator::getPassword("Password*: ", true);
+            std::string confirmPassword = InputValidator::getPassword("Confirm Password*: ", false);
+            
+            if (password != confirmPassword) {
+                UIColors::printCentered("Passwords do not match!", SCREEN_WIDTH, UIColors::RED);
+                InputValidator::pause();
+                continue;
+            }
+            
+            newUser.PasswordHash = password; // Will be hashed in createUser
+            newUser.Role = "Staff"; // All new users get Staff role
+            newUser.FullName = InputValidator::getString("Full Name*: ", true, 2, 100);
+            newUser.Email = InputValidator::getString("Email: ", false, 0, 100);
+            newUser.Phone = InputValidator::getString("Phone: ", false, 0, 20);
+            newUser.IsActive = true;
+            
+            if (auth.createUser(newUser)) {
+                UIColors::printCentered("Account created successfully! You can now login.", SCREEN_WIDTH, UIColors::GREEN);
+                InputValidator::pause();
+                continue; // Return to login screen
+            } else {
+                UIColors::printCentered("Failed to create account. Please try again.", SCREEN_WIDTH, UIColors::RED);
+                InputValidator::pause();
+                continue;
+            }
+        }
+        
+        // Continue with normal login if option 1 or invalid
+        if (optionStr != "1" && optionStr != "2") {
+            UIColors::printCentered("Invalid option. Please select 1 or 2.", SCREEN_WIDTH, UIColors::RED);
+            std::cout << std::endl;
+            continue;
+        }
+        
         if (attempts > 0) {
             UIColors::printCentered("Invalid username or password. Attempts remaining: " + std::to_string(MAX_ATTEMPTS - attempts), SCREEN_WIDTH, UIColors::RED);
             std::cout << std::endl;
         }
         
         // Calculate center position for input
-        int centerPos = SCREEN_WIDTH / 2;
         int promptLen = 10; // "Username: " length
         int startPos = centerPos - (promptLen / 2);
         
@@ -543,6 +619,12 @@ void dressManagementMenu() {
                 std::getline(std::cin, avail);
                 dress.AvailabilityStatus = avail.empty() ? "Available" : avail;
                 
+                std::string cleanPrompt = "Cleaning Status (Clean/Needs Cleaning) [Clean]: ";
+                UIColors::printCenteredInput(cleanPrompt, SCREEN_WIDTH, UIColors::YELLOW);
+                std::string clean;
+                std::getline(std::cin, clean);
+                dress.CleaningStatus = clean.empty() ? "Clean" : clean;
+                
                 if (dm.createDress(dress)) {
                     InputValidator::showSuccess("Dress added successfully!");
                 } else {
@@ -654,6 +736,11 @@ void dressManagementMenu() {
                 UIColors::printCenteredInput(availPrompt7, SCREEN_WIDTH, UIColors::YELLOW);
                 std::getline(std::cin, input);
                 dress.AvailabilityStatus = input.empty() ? existing->AvailabilityStatus : input;
+                
+                std::string cleanPrompt8 = "Cleaning Status [" + existing->CleaningStatus + "]: ";
+                UIColors::printCenteredInput(cleanPrompt8, SCREEN_WIDTH, UIColors::YELLOW);
+                std::getline(std::cin, input);
+                dress.CleaningStatus = input.empty() ? existing->CleaningStatus : input;
                 
                 if (InputValidator::confirm("Are you sure you want to update this dress?")) {
                     if (dm.updateDress(dressID, dress)) {

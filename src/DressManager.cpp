@@ -14,8 +14,8 @@ bool DressManager::createDress(const Dress& dress) {
         }
         
         sql::PreparedStatement* pstmt = conn->prepareStatement(
-            "INSERT INTO Dresses (DressName, Category, Size, Color, RentalPrice, ConditionStatus, AvailabilityStatus) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO Dresses (DressName, Category, Size, Color, RentalPrice, ConditionStatus, AvailabilityStatus, CleaningStatus) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
         
         pstmt->setString(1, dress.DressName);
@@ -25,6 +25,7 @@ bool DressManager::createDress(const Dress& dress) {
         pstmt->setDouble(5, dress.RentalPrice);
         pstmt->setString(6, dress.ConditionStatus);
         pstmt->setString(7, dress.AvailabilityStatus);
+        pstmt->setString(8, dress.CleaningStatus.empty() ? "Clean" : dress.CleaningStatus);
         
         pstmt->executeUpdate();
         delete pstmt;
@@ -62,6 +63,8 @@ Dress* DressManager::getDressByID(int dressID) {
             dress->RentalPrice = res->getDouble("RentalPrice");
             dress->ConditionStatus = res->getString("ConditionStatus");
             dress->AvailabilityStatus = res->getString("AvailabilityStatus");
+            dress->CleaningStatus = res->getString("CleaningStatus");
+            if (dress->CleaningStatus.empty()) dress->CleaningStatus = "Clean";
             delete pstmt;
             delete res;
             return dress;
@@ -92,6 +95,8 @@ std::vector<Dress> DressManager::getAllDresses() {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
+            dress.CleaningStatus = res->getString("CleaningStatus");
+            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -118,6 +123,8 @@ std::vector<Dress> DressManager::getAvailableDresses() {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
+            dress.CleaningStatus = res->getString("CleaningStatus");
+            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -155,6 +162,8 @@ std::vector<Dress> DressManager::searchDresses(const std::string& searchTerm) {
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
+            dress.CleaningStatus = res->getString("CleaningStatus");
+            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -189,6 +198,8 @@ std::vector<Dress> DressManager::getDressesByCategory(const std::string& categor
             dress.RentalPrice = res->getDouble("RentalPrice");
             dress.ConditionStatus = res->getString("ConditionStatus");
             dress.AvailabilityStatus = res->getString("AvailabilityStatus");
+            dress.CleaningStatus = res->getString("CleaningStatus");
+            if (dress.CleaningStatus.empty()) dress.CleaningStatus = "Clean";
             dresses.push_back(dress);
         }
         if (res) delete res;
@@ -208,7 +219,7 @@ bool DressManager::updateDress(int dressID, const Dress& dress) {
         }
         sql::PreparedStatement* pstmt = conn->prepareStatement(
             "UPDATE Dresses SET DressName = ?, Category = ?, Size = ?, Color = ?, "
-            "RentalPrice = ?, ConditionStatus = ?, AvailabilityStatus = ? WHERE DressID = ?"
+            "RentalPrice = ?, ConditionStatus = ?, AvailabilityStatus = ?, CleaningStatus = ? WHERE DressID = ?"
         );
         
         pstmt->setString(1, dress.DressName);
@@ -218,7 +229,8 @@ bool DressManager::updateDress(int dressID, const Dress& dress) {
         pstmt->setDouble(5, dress.RentalPrice);
         pstmt->setString(6, dress.ConditionStatus);
         pstmt->setString(7, dress.AvailabilityStatus);
-        pstmt->setInt(8, dressID);
+        pstmt->setString(8, dress.CleaningStatus.empty() ? "Clean" : dress.CleaningStatus);
+        pstmt->setInt(9, dressID);
         
         int rows = pstmt->executeUpdate();
         delete pstmt;
@@ -340,6 +352,10 @@ void DressManager::displayDress(const Dress& dress) {
               << UIColors::colorize("Availability:", UIColors::CYAN) << " " 
               << std::setw(40) << std::left << dress.AvailabilityStatus 
               << UIColors::colorize("|", UIColors::CYAN) << std::endl;
+    std::cout << UIColors::colorize("|", UIColors::CYAN) << " " 
+              << UIColors::colorize("Cleaning Status:", UIColors::CYAN) << " " 
+              << std::setw(40) << std::left << dress.CleaningStatus 
+              << UIColors::colorize("|", UIColors::CYAN) << std::endl;
     UIColors::printSeparator(60);
 }
 
@@ -354,8 +370,8 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
     UIColors::printSeparator(SCREEN_WIDTH);
     
     // Calculate column widths to fit within SCREEN_WIDTH with proper spacing and borders
-    int col1 = 6, col2 = 22, col3 = 16, col4 = 8, col5 = 12, col6 = 14, col7 = 14, col8 = 16;
-    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + col8 + 9; // +9 for 8 separators + 1
+    int col1 = 5, col2 = 18, col3 = 14, col4 = 7, col5 = 10, col6 = 12, col7 = 12, col8 = 13, col9 = 14;
+    int totalWidth = col1 + col2 + col3 + col4 + col5 + col6 + col7 + col8 + col9 + 10; // +10 for 9 separators + 1
     int padding = (SCREEN_WIDTH - totalWidth) / 2;
     if (padding < 0) padding = 0;
     
@@ -384,6 +400,9 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
     // Print top border
     std::cout << borderLine << std::endl;
     
+    // Update border line for new width
+    borderLine = std::string(padding, ' ') + "+" + std::string(totalWidth - 2, '-') + "+";
+    
     // Print header with proper spacing and borders
     std::cout << std::string(padding, ' ') << "|"
               << padColored(UIColors::colorize("ID", UIColors::BOLD + UIColors::CYAN), col1) << "|"
@@ -394,6 +413,7 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
               << padColored(UIColors::colorize("Price", UIColors::BOLD + UIColors::CYAN), col6) << "|"
               << padColored(UIColors::colorize("Condition", UIColors::BOLD + UIColors::CYAN), col7) << "|"
               << padColored(UIColors::colorize("Status", UIColors::BOLD + UIColors::CYAN), col8) << "|"
+              << padColored(UIColors::colorize("Cleaning", UIColors::BOLD + UIColors::CYAN), col9) << "|"
               << std::endl;
     
     // Print separator after header
@@ -406,13 +426,14 @@ void DressManager::displayAllDresses(const std::vector<Dress>& dresses) {
         
         std::cout << std::string(padding, ' ') << "|"
                   << std::setw(col1) << std::left << dress.DressID
-                  << "|" << std::setw(col2) << std::left << (dress.DressName.length() > 20 ? dress.DressName.substr(0, 20) : dress.DressName)
-                  << "|" << std::setw(col3) << std::left << (dress.Category.length() > 14 ? dress.Category.substr(0, 14) : dress.Category)
+                  << "|" << std::setw(col2) << std::left << (dress.DressName.length() > col2 - 1 ? dress.DressName.substr(0, col2 - 1) : dress.DressName)
+                  << "|" << std::setw(col3) << std::left << (dress.Category.length() > col3 - 1 ? dress.Category.substr(0, col3 - 1) : dress.Category)
                   << "|" << std::setw(col4) << std::left << dress.Size
-                  << "|" << std::setw(col5) << std::left << (dress.Color.length() > 10 ? dress.Color.substr(0, 10) : dress.Color)
+                  << "|" << std::setw(col5) << std::left << (dress.Color.length() > col5 - 1 ? dress.Color.substr(0, col5 - 1) : dress.Color)
                   << "|" << std::setw(col6) << std::left << priceStream.str()
-                  << "|" << std::setw(col7) << std::left << (dress.ConditionStatus.length() > 12 ? dress.ConditionStatus.substr(0, 12) : dress.ConditionStatus)
-                  << "|" << std::setw(col8) << std::left << (dress.AvailabilityStatus.length() > 14 ? dress.AvailabilityStatus.substr(0, 14) : dress.AvailabilityStatus)
+                  << "|" << std::setw(col7) << std::left << (dress.ConditionStatus.length() > col7 - 1 ? dress.ConditionStatus.substr(0, col7 - 1) : dress.ConditionStatus)
+                  << "|" << std::setw(col8) << std::left << (dress.AvailabilityStatus.length() > col8 - 1 ? dress.AvailabilityStatus.substr(0, col8 - 1) : dress.AvailabilityStatus)
+                  << "|" << std::setw(col9) << std::left << (dress.CleaningStatus.length() > col9 - 1 ? dress.CleaningStatus.substr(0, col9 - 1) : dress.CleaningStatus)
                   << "|" << std::endl;
     }
     

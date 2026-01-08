@@ -14,6 +14,7 @@ struct Dress {
     double RentalPrice;
     std::string ConditionStatus;
     std::string AvailabilityStatus;
+    std::string CleaningStatus;
 };
 
 class DressManager {

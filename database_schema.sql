@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS Dresses (
     RentalPrice DECIMAL(10, 2) NOT NULL,
     ConditionStatus VARCHAR(20) DEFAULT 'Good',
     AvailabilityStatus VARCHAR(20) DEFAULT 'Available',
+    CleaningStatus VARCHAR(20) DEFAULT 'Clean',
     StockQuantity INT DEFAULT 1,
     MinimumStockLevel INT DEFAULT 1,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
