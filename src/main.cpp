@@ -42,20 +42,8 @@ int main() {
     while (true) {
         displayMainMenu();
         
-        std::string input;
-        std::getline(std::cin, input);
-        
-        try {
-            if (input.empty()) {
-                UIColors::printError("Please enter a choice.");
-                continue;
-            }
-            choice = std::stoi(input);
-        } catch (const std::exception&) {
-            InputValidator::clearInputBuffer();
-            UIColors::printError("Invalid input. Please enter a valid number.");
-            continue;
-        }
+        UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
+        choice = InputValidator::getInt("", 0, 9, true);
         
         if (choice == 0) {
             if (InputValidator::confirm("\nAre you sure you want to logout?")) {

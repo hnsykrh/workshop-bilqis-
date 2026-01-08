@@ -68,6 +68,31 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
             continue;
         }
         
+        // Trim whitespace first
+        input.erase(0, input.find_first_not_of(" \t\n\r"));
+        input.erase(input.find_last_not_of(" \t\n\r") + 1);
+        
+        // Check if input contains only digits (allow negative sign only at start)
+        bool isValidNumber = true;
+        bool hasNegative = false;
+        for (size_t i = 0; i < input.length(); ++i) {
+            if (i == 0 && input[i] == '-' && min < 0) {
+                hasNegative = true;
+                continue;
+            }
+            if (!std::isdigit(static_cast<unsigned char>(input[i]))) {
+                isValidNumber = false;
+                break;
+            }
+        }
+        
+        if (!isValidNumber || (hasNegative && min >= 0)) {
+            UIColors::printCentered("Invalid input. Please enter only digits (no letters, symbols, or spaces).", SCREEN_WIDTH, UIColors::RED);
+            printTip("Enter a number between " + std::to_string(min) + " and " + std::to_string(max) + " using digits only.");
+            if (!allowRetry) return 0;
+            continue;
+        }
+        
         try {
             value = std::stoi(input);
             

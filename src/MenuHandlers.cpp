@@ -34,11 +34,10 @@ bool showLoginScreen() {
         std::cout << std::endl;
         
         UIColors::printCenteredInput("Select option (1 or 2): ", SCREEN_WIDTH, UIColors::WHITE);
-        std::string optionStr;
-        std::getline(std::cin, optionStr);
+        int option = InputValidator::getInt("", 1, 2, true);
         
         // Handle Sign Up
-        if (optionStr == "2") {
+        if (option == 2) {
             UIColors::printHeader("SIGN UP - CREATE NEW STAFF ACCOUNT", SCREEN_WIDTH);
             
             User newUser;
@@ -96,10 +95,9 @@ bool showLoginScreen() {
             }
         }
         
-        // Continue with normal login if option 1 or invalid
-        if (optionStr != "1" && optionStr != "2") {
-            UIColors::printCentered("Invalid option. Please select 1 or 2.", SCREEN_WIDTH, UIColors::RED);
-            std::cout << std::endl;
+        // Continue with normal login if option 1
+        if (option != 1) {
+            // Already handled sign up above, continue to login loop
             continue;
         }
         
