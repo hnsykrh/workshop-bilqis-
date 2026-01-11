@@ -172,11 +172,11 @@ void showChangePasswordMenu() {
     UIColors::printHeader("CHANGE PASSWORD", SCREEN_WIDTH);
     
     UIColors::printCentered("Enter current password:", SCREEN_WIDTH, UIColors::WHITE);
-    std::string oldPassword = InputValidator::getPassword("", false);
+    std::string oldPassword = InputValidator::getPassword("", false, true);  // Skip validation for current password
     
     std::string newPassword = InputValidator::getPassword("Enter new password: ", true);
     UIColors::printCentered("Confirm new password:", SCREEN_WIDTH, UIColors::WHITE);
-    std::string confirmPassword = InputValidator::getPassword("", false);
+    std::string confirmPassword = InputValidator::getPassword("", false, true);  // Skip validation for confirmation (only validate the new password)
     
     if (newPassword != confirmPassword) {
         UIColors::printCentered("New passwords do not match!", SCREEN_WIDTH, UIColors::RED);

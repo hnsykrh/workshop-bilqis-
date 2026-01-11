@@ -13,3 +13,5 @@ UPDATE Dresses
 SET CleaningStatus = 'Clean' 
 WHERE CleaningStatus IS NULL OR CleaningStatus = '';
 
+
+

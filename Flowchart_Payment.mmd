@@ -1,0 +1,54 @@
+flowchart TD
+    Start([Payment Processing]) --> Menu{Select Operation}
+    
+    Menu -->|1| Create[Create New Payment]
+    Menu -->|2| View[View All Payments]
+    Menu -->|3| ViewRental[View Payments by Rental]
+    Menu -->|4| Receipt[Generate Receipt]
+    Menu -->|0| End([Back to Main Menu])
+    
+    Create --> SelectRental[Select Rental ID]
+    SelectRental --> CheckRental{Rental Exists?}
+    CheckRental -->|No| Error1[Error: Rental not found]
+    CheckRental -->|Yes| GetAmount[Calculate Total Amount]
+    GetAmount --> CheckPaid{Already Paid?}
+    CheckPaid -->|Yes| Error2[Error: Rental already paid]
+    CheckPaid -->|No| InputMethod[Enter Payment Method]
+    Error1 --> End
+    Error2 --> End
+    
+    InputMethod --> ValidateMethod{Valid Method?}
+    ValidateMethod -->|No| Error3[Error: Invalid payment method]
+    ValidateMethod -->|Yes| InputAmount[Enter Payment Amount]
+    Error3 --> InputMethod
+    
+    InputAmount --> InputDate[Enter Payment Date]
+    InputDate --> InputRef[Enter Transaction Reference]
+    InputRef --> ValidateAmount{Amount >= Total?}
+    ValidateAmount -->|No| Error4[Error: Insufficient payment]
+    ValidateAmount -->|Yes| SavePayment[Save Payment to Database]
+    Error4 --> InputAmount
+    
+    SavePayment --> UpdateStatus[Set Status: Completed]
+    UpdateStatus --> CheckFull{Rental Fully Paid?}
+    CheckFull -->|Yes| UpdateRental[Update Rental Status]
+    CheckFull -->|No| Success1[Payment Recorded]
+    UpdateRental --> Success1
+    Success1 --> End
+    
+    View --> Query[Query All Payments]
+    Query --> Display[Display Payment List]
+    Display --> End
+    
+    ViewRental --> SelectRental2[Select Rental ID]
+    SelectRental2 --> QueryPayments[Query Payments for Rental]
+    QueryPayments --> DisplayPayments[Display Payment History]
+    DisplayPayments --> End
+    
+    Receipt --> SelectPayment[Select Payment ID]
+    SelectPayment --> GetPayment[Get Payment Details]
+    GetPayment --> GetRentalInfo[Get Rental Information]
+    GetRentalInfo --> GetCustomer[Get Customer Information]
+    GetCustomer --> PrintReceipt[Generate & Print Receipt]
+    PrintReceipt --> End
+

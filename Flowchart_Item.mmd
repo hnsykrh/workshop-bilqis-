@@ -1,0 +1,57 @@
+flowchart TD
+    Start([Dress Inventory Management]) --> Menu{Select Operation}
+    
+    Menu -->|1| Create[Add New Dress]
+    Menu -->|2| View[View All Dresses]
+    Menu -->|3| Available[View Available Dresses]
+    Menu -->|4| Search[Search Dresses]
+    Menu -->|5| Update[Update Dress]
+    Menu -->|6| Delete[Delete Dress]
+    Menu -->|7| Details[View Dress Details]
+    Menu -->|0| End([Back to Main Menu])
+    
+    Create --> Input[Enter Dress Information]
+    Input --> SetStatus[Set Status: Available]
+    SetStatus --> SetClean[Set Cleaning Status: Clean]
+    SetClean --> Save[Save Dress to Database]
+    Save --> Success1[Dress Added Successfully]
+    Success1 --> End
+    
+    View --> Query[Query All Dresses]
+    Query --> Display[Display Dress Inventory List]
+    Display --> End
+    
+    Available --> QueryAvail[Query Available Dresses]
+    QueryAvail --> DisplayAvail[Display Available Dresses]
+    DisplayAvail --> End
+    
+    Search --> InputTerm[Enter Search Term]
+    InputTerm --> SearchDB[Search by Name/Category/Color/Size]
+    SearchDB --> Results{Results Found?}
+    Results -->|Yes| DisplayResults[Display Search Results]
+    Results -->|No| NoResults[No dresses found]
+    DisplayResults --> End
+    NoResults --> End
+    
+    Update --> SelectID[Select Dress ID]
+    SelectID --> GetDress[Get Current Dress Data]
+    GetDress --> InputNew[Enter Updated Information]
+    InputNew --> UpdateDB[Update in Database]
+    UpdateDB --> Success2[Dress Updated Successfully]
+    Success2 --> End
+    
+    Delete --> SelectID2[Select Dress ID]
+    SelectID2 --> CheckRental{Dress Currently Rented?}
+    CheckRental -->|Yes| Error1[Error: Dress is currently rented]
+    CheckRental -->|No| Confirm{Confirm Delete?}
+    Confirm -->|No| End
+    Confirm -->|Yes| DeleteDB[Delete from Database]
+    Error1 --> End
+    DeleteDB --> Success3[Dress Deleted Successfully]
+    Success3 --> End
+    
+    Details --> SelectID3[Select Dress ID]
+    SelectID3 --> GetDetails[Get Dress Information]
+    GetDetails --> DisplayDetails[Display Dress Details<br/>with Cleaning Status]
+    DisplayDetails --> End
+

@@ -1,0 +1,66 @@
+erDiagram
+    Customers {
+        int CustomerID PK
+        string Name
+        string IC_Number UK
+        string Phone
+        string Email
+        text Address
+        date DateOfBirth
+        timestamp CreatedAt
+    }
+    
+    Dresses {
+        int DressID PK
+        string DressName
+        string Category
+        string Size
+        string Color
+        decimal RentalPrice
+        string ConditionStatus
+        string AvailabilityStatus
+        string CleaningStatus
+        int StockQuantity
+        int MinimumStockLevel
+        timestamp CreatedAt
+    }
+    
+    Rentals {
+        int RentalID PK
+        int CustomerID FK
+        date RentalDate
+        date DueDate
+        date ReturnDate
+        decimal TotalAmount
+        decimal LateFee
+        string Status
+        timestamp CreatedAt
+    }
+    
+    Rental_Dress {
+        int RentalItemID PK
+        int RentalID FK
+        int DressID FK
+        decimal RentalPrice
+    }
+    
+    Payments {
+        int PaymentID PK
+        int RentalID FK
+        decimal Amount
+        string PaymentMethod
+        date PaymentDate
+        string Status
+        string TransactionReference
+        timestamp CreatedAt
+    }
+    
+    %% Relationships
+    Customers ||--o{ Rentals : "makes"
+    Rentals ||--o{ Rental_Dress : "contains"
+    Rentals ||--o{ Payments : "has"
+    Dresses ||--o{ Rental_Dress : "rented_in"
+    
+    %% Styling - Dark background for entity titles
+    classDef entityStyle fill:#1a202c,stroke:#2d3748,stroke-width:2px,color:#ffffff
+    class Customers,Dresses,Rentals,Rental_Dress,Payments entityStyle

@@ -1,0 +1,92 @@
+flowchart TD
+    Start([Reports & Analytics]) --> Menu{Select Report Type}
+    
+    Menu -->|1| MonthlySales[Monthly Sales Report]
+    Menu -->|2| Inventory[Inventory Valuation Report]
+    Menu -->|3| Utilization[Dress Utilization Report]
+    Menu -->|4| CustomerActivity[Customer Activity Report]
+    Menu -->|5| Overdue[Overdue Items Report]
+    Menu -->|6| Summary[Rental Summary Report]
+    Menu -->|7| Income[Income Statement]
+    Menu -->|8| Loyalty[Customer Loyalty Report]
+    Menu -->|9| Profit[Profit Margin Report]
+    Menu -->|10| Dashboard[Dashboard Overview]
+    Menu -->|0| End([Back to Main Menu])
+    
+    MonthlySales --> InputYear[Enter Year]
+    InputYear --> QueryMonthly[Query Monthly Sales Data]
+    QueryMonthly --> GroupByMonth[GROUP BY Month]
+    GroupByMonth --> CalculateTotal[Calculate Total Sales & Count]
+    CalculateTotal --> DisplayChart[Display Bar Chart]
+    DisplayChart --> DisplayTable[Display Monthly Table]
+    DisplayTable --> Summary[Display Summary Statistics]
+    Summary --> End
+    
+    Inventory --> QueryInventory[Query Inventory by Category]
+    QueryInventory --> GroupByCat[GROUP BY Category]
+    GroupByCat --> CalculateValue[Calculate Total Value & Count]
+    CalculateValue --> DisplayInventory[Display Inventory Valuation]
+    DisplayInventory --> DisplayChart2[Display Chart]
+    DisplayChart2 --> End
+    
+    Utilization --> QueryUtil[Query Dress Utilization]
+    QueryUtil --> JoinTables[JOIN Dresses & RentalItems]
+    JoinTables --> CalculateRate[Calculate Utilization Rate]
+    CalculateRate --> OrderByCount[ORDER BY Rental Count]
+    OrderByCount --> Limit[LIMIT Top 20]
+    Limit --> DisplayUtil[Display Utilization Report]
+    DisplayUtil --> DisplayChart3[Display Chart]
+    DisplayChart3 --> End
+    
+    CustomerActivity --> QueryActivity[Query Customer Activity]
+    QueryActivity --> JoinCustomer[JOIN Customers & Rentals]
+    JoinCustomer --> CalculateSpent[Calculate Total Spent & Rentals]
+    CalculateSpent --> FilterActive[HAVING Rentals > 0]
+    FilterActive --> OrderBySpent[ORDER BY Total Spent]
+    OrderBySpent --> Limit20[LIMIT Top 20]
+    Limit20 --> DisplayActivity[Display Activity Report]
+    DisplayActivity --> End
+    
+    Overdue --> QueryOverdue[Query Overdue Rentals]
+    QueryOverdue --> CheckDate{DueDate < Today?}
+    CheckDate -->|No| NoOverdue[No overdue rentals]
+    CheckDate -->|Yes| CalculateDays[Calculate Days Overdue]
+    CalculateDays --> CalculateFee[Calculate Late Fee]
+    CalculateFee --> DisplayOverdue[Display Overdue Report]
+    NoOverdue --> End
+    DisplayOverdue --> End
+    
+    Summary --> QuerySummary[Query Rentals by Status]
+    QuerySummary --> GroupByStatus[GROUP BY Status]
+    GroupByStatus --> CountStatus[COUNT & SUM Amounts]
+    CountStatus --> DisplaySummary[Display Summary Table]
+    DisplaySummary --> End
+    
+    Income --> InputDates[Enter Start & End Date]
+    InputDates --> QueryIncome[Query Payments in Date Range]
+    QueryIncome --> SumRevenue[SUM Payment Amounts]
+    SumRevenue --> DisplayIncome[Display Income Statement]
+    DisplayIncome --> End
+    
+    Loyalty --> QueryLoyalty[Query Customer Loyalty]
+    QueryLoyalty --> FilterRentals[HAVING Rentals >= 3]
+    FilterRentals --> CalculateDaysActive[Calculate Days Since First Rental]
+    CalculateDaysActive --> OrderByLoyalty[ORDER BY Total Spent]
+    OrderByLoyalty --> DisplayLoyalty[Display Loyalty Report]
+    DisplayLoyalty --> End
+    
+    Profit --> QueryProfit[Query Profit by Category]
+    QueryProfit --> JoinReturned[JOIN Returned Rentals]
+    JoinReturned --> CalculateRevenue[Calculate Revenue per Dress]
+    CalculateRevenue --> GroupByCategory[GROUP BY Category]
+    GroupByCategory --> DisplayProfit[Display Profit Margin Report]
+    DisplayProfit --> End
+    
+    Dashboard --> QueryCustomers[Query Total Customers]
+    QueryCustomers --> QueryDresses[Query Total Dresses]
+    QueryDresses --> QueryActive[Query Active Rentals]
+    QueryActive --> QueryOverdueCount[Query Overdue Count]
+    QueryOverdueCount --> QueryRevenue[Query Monthly Revenue]
+    QueryRevenue --> DisplayDashboard[Display Dashboard Statistics]
+    DisplayDashboard --> End
+

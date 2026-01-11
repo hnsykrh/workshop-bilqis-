@@ -1,0 +1,59 @@
+flowchart TD
+    Start([Customer Management]) --> Menu{Select Operation}
+    
+    Menu -->|1| Create[Add New Customer]
+    Menu -->|2| View[View All Customers]
+    Menu -->|3| Search[Search Customers]
+    Menu -->|4| Update[Update Customer]
+    Menu -->|5| Delete[Delete Customer]
+    Menu -->|6| Details[View Customer Details]
+    Menu -->|0| End([Back to Main Menu])
+    
+    Create --> ValidateAge{Age >= 18?}
+    ValidateAge -->|No| Error1[Error: Customer must be 18+]
+    ValidateAge -->|Yes| CheckIC{IC Number Exists?}
+    CheckIC -->|Yes| Error2[Error: IC already exists]
+    CheckIC -->|No| Save[Save Customer to Database]
+    Save --> Success1[Customer Added Successfully]
+    Error1 --> Create
+    Error2 --> Create
+    Success1 --> End
+    
+    View --> Query[Query All Customers]
+    Query --> Display[Display Customer List]
+    Display --> End
+    
+    Search --> Input[Enter Search Term]
+    Input --> SearchDB[Search in Database]
+    SearchDB --> Results{Customers Found?}
+    Results -->|Yes| DisplayResults[Display Search Results]
+    Results -->|No| NoResults[No customers found]
+    DisplayResults --> End
+    NoResults --> End
+    
+    Update --> SelectID[Select Customer ID]
+    SelectID --> GetCustomer[Get Customer Data]
+    GetCustomer --> InputNew[Enter New Information]
+    InputNew --> ValidateUpdate{Valid Data?}
+    ValidateUpdate -->|No| Error3[Validation Error]
+    ValidateUpdate -->|Yes| UpdateDB[Update in Database]
+    Error3 --> InputNew
+    UpdateDB --> Success2[Customer Updated Successfully]
+    Success2 --> End
+    
+    Delete --> SelectID2[Select Customer ID]
+    SelectID2 --> CheckRentals{Active Rentals?}
+    CheckRentals -->|Yes| Error4[Error: Customer has active rentals]
+    CheckRentals -->|No| Confirm{Confirm Delete?}
+    Confirm -->|No| End
+    Confirm -->|Yes| DeleteDB[Delete from Database]
+    Error4 --> End
+    DeleteDB --> Success3[Customer Deleted Successfully]
+    Success3 --> End
+    
+    Details --> SelectID3[Select Customer ID]
+    SelectID3 --> GetDetails[Get Customer Details]
+    GetDetails --> GetRentals[Get Rental History]
+    GetRentals --> DisplayDetails[Display Full Customer Info]
+    DisplayDetails --> End
+
