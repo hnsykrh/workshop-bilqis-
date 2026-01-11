@@ -101,11 +101,6 @@ bool showLoginScreen() {
             continue;
         }
         
-        if (attempts > 0) {
-            UIColors::printCentered("Invalid username or password. Attempts remaining: " + std::to_string(MAX_ATTEMPTS - attempts), SCREEN_WIDTH, UIColors::RED);
-            std::cout << std::endl;
-        }
-        
         // Calculate center position for input
         int promptLen = 10; // "Username: " length
         int startPos = centerPos - (promptLen / 2);
@@ -118,7 +113,6 @@ bool showLoginScreen() {
         startPos = centerPos - (promptLen / 2);
         std::cout << std::string(startPos, ' ') << UIColors::colorize("Password: ", UIColors::WHITE) << std::flush;
         std::string password = InputValidator::getPassword("", false, true);  // Skip validation for login
-        std::cout << std::endl;
         
         if (auth.login(username, password)) {
             User* user = auth.getCurrentUser();
@@ -147,8 +141,11 @@ bool showLoginScreen() {
             return true;
         } else {
             attempts++;
+            std::cout << std::endl;
+            UIColors::printCentered("Invalid username or password. Attempts remaining: " + std::to_string(MAX_ATTEMPTS - attempts), SCREEN_WIDTH, UIColors::RED);
+            std::cout << std::endl;
             if (attempts < MAX_ATTEMPTS) {
-                std::cout << std::endl;
+                InputValidator::pause("Press Enter to try again...");
             }
         }
     }
