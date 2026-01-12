@@ -186,8 +186,8 @@ Rental* RentalManager::getRentalByID(int rentalID) {
             rental->RentalDate = res->getString("RentalDate");
             rental->DueDate = res->getString("DueDate");
             rental->ReturnDate = res->getString("ReturnDate");
-            rental->TotalAmount = res->getDouble("TotalAmount");
-            rental->LateFee = res->getDouble("LateFee");
+            rental->TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
+            rental->LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
             rental->Status = res->getString("Status");
             delete pstmt;
             delete res;
@@ -200,7 +200,7 @@ Rental* RentalManager::getRentalByID(int rentalID) {
                 pstmt->setInt(1, rentalID);
                 res = pstmt->executeQuery();
                 if (res && res->next()) {
-                    rental->LateFee = res->getDouble("LateFee");
+                    rental->LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
                 }
                 delete pstmt;
                 if (res) delete res;
@@ -238,8 +238,8 @@ std::vector<Rental> RentalManager::getRentalsByCustomer(int customerID) {
             rental.RentalDate = res->getString("RentalDate");
             rental.DueDate = res->getString("DueDate");
             rental.ReturnDate = res->getString("ReturnDate");
-            rental.TotalAmount = res->getDouble("TotalAmount");
-            rental.LateFee = res->getDouble("LateFee");
+            rental.TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
+            rental.LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
             rental.Status = res->getString("Status");
             rentals.push_back(rental);
         }
@@ -265,8 +265,8 @@ std::vector<Rental> RentalManager::getActiveRentals() {
             rental.RentalDate = res->getString("RentalDate");
             rental.DueDate = res->getString("DueDate");
             rental.ReturnDate = res->getString("ReturnDate");
-            rental.TotalAmount = res->getDouble("TotalAmount");
-            rental.LateFee = res->getDouble("LateFee");
+            rental.TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
+            rental.LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
             rental.Status = res->getString("Status");
             
             // Automatically calculate and update late fee if overdue
@@ -318,8 +318,8 @@ std::vector<Rental> RentalManager::getOverdueRentals() {
             rental.RentalDate = res->getString("RentalDate");
             rental.DueDate = res->getString("DueDate");
             rental.ReturnDate = res->getString("ReturnDate");
-            rental.TotalAmount = res->getDouble("TotalAmount");
-            rental.LateFee = res->getDouble("LateFee");
+            rental.TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
+            rental.LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
             rental.Status = res->getString("Status");
             
             // Automatically calculate and update late fee for overdue rentals
@@ -334,7 +334,7 @@ std::vector<Rental> RentalManager::getOverdueRentals() {
                 pstmt->setInt(1, rental.RentalID);
                 sql::ResultSet* feeRes = pstmt->executeQuery();
                 if (feeRes && feeRes->next()) {
-                    rental.LateFee = feeRes->getDouble("LateFee");
+                    rental.LateFee = feeRes->isNull("LateFee") ? 0.0 : feeRes->getDouble("LateFee");
                 }
                 delete pstmt;
                 if (feeRes) delete feeRes;
