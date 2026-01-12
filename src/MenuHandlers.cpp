@@ -1067,6 +1067,113 @@ void rentalManagementMenu() {
                 InputValidator::pause();
                 break;
             }
+            case 7: {
+                // Show all rentals first
+                UIColors::printHeader("CHANGE RENTAL STATUS", SCREEN_WIDTH);
+                UIColors::printInfo("Please select a rental to change status:");
+                
+                std::vector<Rental> allRentals = rm.getActiveRentals();
+                std::vector<Rental> returnedRentals;
+                try {
+                    sql::ResultSet* res = DatabaseManager::getInstance().executeSelect(
+                        "SELECT * FROM Rentals WHERE Status = 'Returned' ORDER BY ReturnDate DESC"
+                    );
+                    while (res && res->next()) {
+                        Rental rental;
+                        rental.RentalID = res->getInt("RentalID");
+                        rental.CustomerID = res->getInt("CustomerID");
+                        rental.RentalDate = res->getString("RentalDate");
+                        rental.DueDate = res->getString("DueDate");
+                        rental.ReturnDate = res->getString("ReturnDate");
+                        rental.TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
+                        rental.LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
+                        rental.Status = res->getString("Status");
+                        returnedRentals.push_back(rental);
+                    }
+                    if (res) delete res;
+                } catch (sql::SQLException& e) {
+                    std::cerr << "Error getting returned rentals: " << e.what() << std::endl;
+                }
+                
+                if (allRentals.empty() && returnedRentals.empty()) {
+                    UIColors::printInfo("No rentals found.");
+                    InputValidator::pause();
+                    break;
+                }
+                
+                if (!allRentals.empty()) {
+                    UIColors::printCentered("=== ACTIVE RENTALS ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                    for (const auto& rental : allRentals) {
+                        rm.displayRental(rental);
+                    }
+                }
+                
+                if (!returnedRentals.empty()) {
+                    UIColors::printCentered("=== RETURNED RENTALS ===", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
+                    for (const auto& rental : returnedRentals) {
+                        rm.displayRental(rental);
+                    }
+                }
+                
+                UIColors::printCenteredInput("Enter Rental ID to change status (0 to cancel): ", SCREEN_WIDTH, UIColors::WHITE);
+                rentalID = InputValidator::getInt("", 0);
+                if (rentalID == 0) {
+                    UIColors::printInfo("Status change cancelled.");
+                    InputValidator::pause();
+                    break;
+                }
+                
+                Rental* rental = rm.getRentalByID(rentalID);
+                if (!rental) {
+                    InputValidator::showError("Rental not found.");
+                    InputValidator::pause();
+                    break;
+                }
+                
+                UIColors::printInfo("Current rental information:");
+                rm.displayRental(*rental);
+                
+                std::cout << std::endl;
+                UIColors::printCentered("Available Status Options:", SCREEN_WIDTH, UIColors::YELLOW);
+                UIColors::printCentered("1. Active (Mark as Active/Rented)", SCREEN_WIDTH, UIColors::WHITE);
+                UIColors::printCentered("2. Returned (Mark as Returned)", SCREEN_WIDTH, UIColors::WHITE);
+                std::cout << std::endl;
+                
+                UIColors::printCenteredInput("Select new status (1=Active, 2=Returned, 0=Cancel): ", SCREEN_WIDTH, UIColors::WHITE);
+                int statusChoice = InputValidator::getInt("", 0, 2);
+                
+                if (statusChoice == 0) {
+                    UIColors::printInfo("Status change cancelled.");
+                    delete rental;
+                    InputValidator::pause();
+                    break;
+                }
+                
+                std::string newStatus = (statusChoice == 1) ? "Active" : "Returned";
+                std::string newReturnDate = "";
+                
+                if (statusChoice == 2 && rental->Status != "Returned") {
+                    // If changing to Returned, ask for return date
+                    newReturnDate = InputValidator::getDate("Return Date*");
+                } else if (statusChoice == 2) {
+                    // Already returned, use existing return date
+                    newReturnDate = rental->ReturnDate;
+                }
+                
+                if (InputValidator::confirm("Are you sure you want to change this rental status to '" + newStatus + "'?")) {
+                    if (rm.updateRentalStatus(rentalID, newStatus, newReturnDate)) {
+                        InputValidator::showSuccess("Rental status updated successfully!");
+                    } else {
+                        InputValidator::showError("Failed to update rental status.");
+                    }
+                } else {
+                    UIColors::printInfo("Status change cancelled.");
+                }
+                
+                delete rental;
+                InputValidator::pause();
+                break;
+            }
             default:
                 InputValidator::showError("Invalid choice!");
         }

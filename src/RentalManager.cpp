@@ -397,7 +397,7 @@ bool RentalManager::calculateLateFee(int rentalID) {
         }
         
         std::time_t dueTime = std::mktime(&dueTm);
-        std::time_t compareTime;
+        std::time_t compareTime = std::time(nullptr); // Initialize to current time
         
         // Use return date if available, otherwise use current time
         if (!rental->ReturnDate.empty() && rental->ReturnDate != "NULL") {
@@ -409,8 +409,6 @@ bool RentalManager::calculateLateFee(int rentalID) {
                 return false;
             }
             compareTime = std::mktime(&returnTm);
-        } else {
-            compareTime = std::time(nullptr);
         }
         
         double lateFee = 0.0;
