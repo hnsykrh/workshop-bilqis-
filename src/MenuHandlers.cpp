@@ -1085,8 +1085,10 @@ void rentalManagementMenu() {
                         rental.RentalDate = res->getString("RentalDate");
                         rental.DueDate = res->getString("DueDate");
                         rental.ReturnDate = res->getString("ReturnDate");
-                        rental.TotalAmount = res->isNull("TotalAmount") ? 0.0 : res->getDouble("TotalAmount");
-                        rental.LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
+                        rental.TotalAmount = res->getDouble("TotalAmount");
+                        if (res->wasNull()) rental.TotalAmount = 0.0;
+                        rental.LateFee = res->getDouble("LateFee");
+                        if (res->wasNull()) rental.LateFee = 0.0;
                         rental.Status = res->getString("Status");
                         returnedRentals.push_back(rental);
                     }
