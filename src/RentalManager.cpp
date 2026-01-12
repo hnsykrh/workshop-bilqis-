@@ -394,44 +394,59 @@ std::vector<RentalItem> RentalManager::getRentalItems(int rentalID) {
 
 bool RentalManager::calculateLateFee(int rentalID) {
     try {
-        Rental* rental = this->getRentalByID(rentalID);
-        if (!rental) {
-            delete rental;
+        // Fetch rental data directly from database to avoid recursion with getRentalByID()
+        sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+        if (!conn) {
+            std::cerr << "Error: Database connection failed." << std::endl;
             return false;
         }
         
+        sql::PreparedStatement* pstmt = conn->prepareStatement(
+            "SELECT DueDate, ReturnDate FROM Rentals WHERE RentalID = ?"
+        );
+        pstmt->setInt(1, rentalID);
+        sql::ResultSet* res = pstmt->executeQuery();
+        
+        if (!res || !res->next()) {
+            delete pstmt;
+            if (res) delete res;
+            return false;
+        }
+        
+        std::string dueDate = res->getString("DueDate");
+        std::string returnDate = res->getString("ReturnDate");
+        delete pstmt;
+        delete res;
+        
+        // Parse due date
         std::tm dueTm = {};
-        std::istringstream ss(rental->DueDate);
+        std::istringstream ss(dueDate);
         ss >> std::get_time(&dueTm, "%Y-%m-%d");
         
         if (ss.fail()) {
-            delete rental;
             return false;
         }
         
         std::time_t dueTime = std::mktime(&dueTm);
         if (dueTime == -1) {
-            delete rental;
             return false; // Invalid time
         }
+        
         std::time_t compareTime = std::time(nullptr); // Initialize to current time
         if (compareTime == -1) {
-            delete rental;
             return false; // Invalid current time
         }
         
         // Use return date if available, otherwise use current time
-        if (!rental->ReturnDate.empty() && rental->ReturnDate != "NULL") {
+        if (!returnDate.empty() && returnDate != "NULL") {
             std::tm returnTm = {};
-            std::istringstream returnSs(rental->ReturnDate);
+            std::istringstream returnSs(returnDate);
             returnSs >> std::get_time(&returnTm, "%Y-%m-%d");
             if (returnSs.fail()) {
-                delete rental;
                 return false;
             }
             compareTime = std::mktime(&returnTm);
             if (compareTime == -1) {
-                delete rental;
                 return false; // Invalid return time
             }
         }
@@ -446,20 +461,14 @@ bool RentalManager::calculateLateFee(int rentalID) {
             lateFee = static_cast<double>(daysLateInt) * 10.0; // RM 10 per day
         }
         
-        sql::Connection* conn = DatabaseManager::getInstance().getConnection();
-        if (!conn) {
-            std::cerr << "Error: Database connection failed." << std::endl;
-            delete rental;
-            return false;
-        }
-        sql::PreparedStatement* pstmt = conn->prepareStatement(
+        // Update late fee in database
+        pstmt = conn->prepareStatement(
             "UPDATE Rentals SET LateFee = ? WHERE RentalID = ?"
         );
         pstmt->setDouble(1, lateFee);
         pstmt->setInt(2, rentalID);
         pstmt->executeUpdate();
         delete pstmt;
-        delete rental;
         return true;
     } catch (sql::SQLException& e) {
         std::cerr << "Error calculating late fee: " << e.what() << std::endl;
