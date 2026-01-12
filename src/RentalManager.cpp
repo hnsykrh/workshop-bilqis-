@@ -1,5 +1,6 @@
 #include "RentalManager.h"
 #include "UIColors.h"
+#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>

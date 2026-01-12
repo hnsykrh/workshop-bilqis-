@@ -247,9 +247,11 @@ bool CustomerManager::validateAge(const std::string& dateOfBirth) {
     if (ss.fail()) return false;
     
     std::time_t birthTime = std::mktime(&tm);
+    if (birthTime == -1) return false; // Invalid birth time
     std::time_t now = std::time(nullptr);
+    if (now == -1) return false; // Invalid current time
     double diff = std::difftime(now, birthTime);
-    int years = static_cast<int>(diff / (365.25 * 24 * 60 * 60));
+    int years = static_cast<int>(diff / 31557600.0); // 365.25 * 24.0 * 60.0 * 60.0 = 31557600.0 seconds per year
     
     return years >= 18;
 }
