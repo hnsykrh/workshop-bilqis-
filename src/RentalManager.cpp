@@ -502,13 +502,19 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
         delete pstmt;
         
         // Calculate late fee AFTER setting return date (so it uses the actual return date)
-        this->calculateLateFee(rentalID);
+        if (!this->calculateLateFee(rentalID)) {
+            std::cerr << "Warning: Failed to calculate late fee for rental ID " << rentalID << std::endl;
+            // Continue anyway - late fee calculation failure shouldn't prevent return
+        }
         
         // Get rental items to update dress availability
         std::vector<RentalItem> items = this->getRentalItems(rentalID);
         DressManager dm;
         for (const auto& item : items) {
-            dm.updateAvailability(item.DressID, "Available");
+            if (!dm.updateAvailability(item.DressID, "Available")) {
+                std::cerr << "Warning: Failed to update availability for dress ID " << item.DressID << std::endl;
+                // Continue with other dresses
+            }
         }
         
         conn->commit();
@@ -561,12 +567,18 @@ bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, 
             
             // Calculate late fee
             if (!returnDate.empty()) {
-                this->calculateLateFee(rentalID);
+                if (!this->calculateLateFee(rentalID)) {
+                    std::cerr << "Warning: Failed to calculate late fee for rental ID " << rentalID << std::endl;
+                    // Continue anyway
+                }
             }
             
             // Update dress availability to Available
             for (const auto& item : items) {
-                dm.updateAvailability(item.DressID, "Available");
+                if (!dm.updateAvailability(item.DressID, "Available")) {
+                    std::cerr << "Warning: Failed to update availability for dress ID " << item.DressID << std::endl;
+                    // Continue with other dresses
+                }
             }
         } else if (status == "Active") {
             // Changing back to Active
@@ -588,7 +600,10 @@ bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, 
             
             // Update dress availability to Rented
             for (const auto& item : items) {
-                dm.updateAvailability(item.DressID, "Rented");
+                if (!dm.updateAvailability(item.DressID, "Rented")) {
+                    std::cerr << "Warning: Failed to update availability for dress ID " << item.DressID << std::endl;
+                    // Continue with other dresses
+                }
             }
         } else {
             // Other status updates

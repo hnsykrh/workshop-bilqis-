@@ -69,8 +69,17 @@ int InputValidator::getInt(const std::string& prompt, int min, int max, bool all
         }
         
         // Trim whitespace first
-        input.erase(0, input.find_first_not_of(" \t\n\r"));
-        input.erase(input.find_last_not_of(" \t\n\r") + 1);
+        size_t first = input.find_first_not_of(" \t\n\r");
+        if (first != std::string::npos) {
+            input.erase(0, first);
+        }
+        size_t last = input.find_last_not_of(" \t\n\r");
+        if (last != std::string::npos) {
+            input.erase(last + 1);
+        } else if (first != std::string::npos) {
+            // All whitespace, clear it
+            input.clear();
+        }
         
         // Check if input contains only digits (allow negative sign only at start)
         bool isValidNumber = true;
@@ -364,8 +373,17 @@ std::string InputValidator::getPassword(const std::string& prompt, bool showRequ
 #endif
         
         // Trim whitespace
-        password.erase(0, password.find_first_not_of(" \t\n\r"));
-        password.erase(password.find_last_not_of(" \t\n\r") + 1);
+        size_t first = password.find_first_not_of(" \t\n\r");
+        if (first != std::string::npos) {
+            password.erase(0, first);
+        }
+        size_t last = password.find_last_not_of(" \t\n\r");
+        if (last != std::string::npos) {
+            password.erase(last + 1);
+        } else if (first != std::string::npos) {
+            // All whitespace, clear it
+            password.clear();
+        }
         
         if (password.empty()) {
             UIColors::printCentered("Password cannot be empty.", SCREEN_WIDTH, UIColors::RED);

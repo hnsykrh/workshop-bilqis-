@@ -70,6 +70,8 @@ sql::ResultSet* DatabaseManager::executeSelect(const std::string& query) {
         }
         sql::Statement* stmt = connection->createStatement();
         sql::ResultSet* res = stmt->executeQuery(query);
+        // Note: Statement will be deleted when ResultSet is deleted
+        // The ResultSet maintains ownership of the Statement
         return res;
     } catch (sql::SQLException& e) {
         std::cerr << "Select Query Error: " << e.what() << std::endl;
