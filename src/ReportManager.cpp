@@ -340,7 +340,10 @@ void ReportManager::generateOverdueItemsReport() {
         ss >> std::get_time(&dueTm, "%Y-%m-%d");
         std::time_t dueTime = std::mktime(&dueTm);
         std::time_t now = std::time(nullptr);
-        int daysOverdue = static_cast<int>(std::difftime(now, dueTime) / (24 * 60 * 60));
+        int daysOverdue = 0;
+        if (dueTime != -1 && now != -1) {
+            daysOverdue = static_cast<int>(std::difftime(now, dueTime) / 86400.0); // 86400.0 seconds per day
+        }
         
         rm.calculateLateFee(rental.RentalID);
         Rental* updatedRental = rm.getRentalByID(rental.RentalID);

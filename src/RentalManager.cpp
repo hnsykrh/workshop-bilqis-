@@ -1,6 +1,5 @@
 #include "RentalManager.h"
 #include "UIColors.h"
-#include "MenuHandlers.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -16,7 +15,8 @@ std::string RentalManager::calculateDueDate(const std::string& rentalDate, int d
     if (ss.fail()) return "";
     
     std::time_t time = std::mktime(&tm);
-    time += duration * 24 * 60 * 60;
+    if (time == -1) return ""; // Invalid time
+    time += static_cast<std::time_t>(duration) * 86400; // 86400 seconds per day
     std::tm dueTm;
 #ifdef _WIN32
     localtime_s(&dueTm, &time);
@@ -194,7 +194,7 @@ Rental* RentalManager::getRentalByID(int rentalID) {
             
             // Automatically calculate and update late fee if rental is active and overdue
             if (rental->Status == "Active") {
-                calculateLateFee(rentalID);
+                this->calculateLateFee(rentalID);
                 // Re-fetch to get updated late fee
                 sql::PreparedStatement* feePstmt = conn->prepareStatement("SELECT LateFee FROM Rentals WHERE RentalID = ?");
                 feePstmt->setInt(1, rentalID);
@@ -275,9 +275,11 @@ std::vector<Rental> RentalManager::getActiveRentals() {
             ss >> std::get_time(&dueTm, "%Y-%m-%d");
             if (!ss.fail()) {
                 std::time_t dueTime = std::mktime(&dueTm);
+                if (dueTime == -1) continue; // Invalid time, skip this rental
                 std::time_t now = std::time(nullptr);
+                if (now == -1) continue; // Invalid current time, skip
                 if (now > dueTime) {
-                    calculateLateFee(rental.RentalID);
+                    this->calculateLateFee(rental.RentalID);
                     // Re-fetch the updated late fee
                     sql::Connection* conn = DatabaseManager::getInstance().getConnection();
                     if (conn) {
@@ -323,7 +325,7 @@ std::vector<Rental> RentalManager::getOverdueRentals() {
             rental.Status = res->getString("Status");
             
             // Automatically calculate and update late fee for overdue rentals
-            calculateLateFee(rental.RentalID);
+            this->calculateLateFee(rental.RentalID);
             
             // Re-fetch the updated late fee
             sql::Connection* conn = DatabaseManager::getInstance().getConnection();
@@ -381,7 +383,7 @@ std::vector<RentalItem> RentalManager::getRentalItems(int rentalID) {
 
 bool RentalManager::calculateLateFee(int rentalID) {
     try {
-        Rental* rental = getRentalByID(rentalID);
+        Rental* rental = this->getRentalByID(rentalID);
         if (!rental) {
             delete rental;
             return false;
@@ -397,7 +399,15 @@ bool RentalManager::calculateLateFee(int rentalID) {
         }
         
         std::time_t dueTime = std::mktime(&dueTm);
+        if (dueTime == -1) {
+            delete rental;
+            return false; // Invalid time
+        }
         std::time_t compareTime = std::time(nullptr); // Initialize to current time
+        if (compareTime == -1) {
+            delete rental;
+            return false; // Invalid current time
+        }
         
         // Use return date if available, otherwise use current time
         if (!rental->ReturnDate.empty() && rental->ReturnDate != "NULL") {
@@ -409,16 +419,20 @@ bool RentalManager::calculateLateFee(int rentalID) {
                 return false;
             }
             compareTime = std::mktime(&returnTm);
+            if (compareTime == -1) {
+                delete rental;
+                return false; // Invalid return time
+            }
         }
         
         double lateFee = 0.0;
         if (compareTime > dueTime) {
             // Calculate days late and round UP (ceiling) - even 1 hour late = 1 full day
             double secondsLate = std::difftime(compareTime, dueTime);
-            double daysLate = secondsLate / (24 * 60 * 60);
+            double daysLate = secondsLate / 86400.0; // 24.0 * 60.0 * 60.0 = 86400.0 seconds per day
             // Round up to nearest day (ceiling)
             int daysLateInt = static_cast<int>(std::ceil(daysLate));
-            lateFee = daysLateInt * 10.0; // RM 10 per day
+            lateFee = static_cast<double>(daysLateInt) * 10.0; // RM 10 per day
         }
         
         sql::Connection* conn = DatabaseManager::getInstance().getConnection();
@@ -447,7 +461,7 @@ bool RentalManager::calculateLateFee(int rentalID) {
 
 bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
     try {
-        Rental* rental = getRentalByID(rentalID);
+        Rental* rental = this->getRentalByID(rentalID);
         if (!rental) return false;
         
         sql::Connection* conn = DatabaseManager::getInstance().getConnection();
@@ -468,10 +482,10 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
         delete pstmt;
         
         // Calculate late fee AFTER setting return date (so it uses the actual return date)
-        calculateLateFee(rentalID);
+        this->calculateLateFee(rentalID);
         
         // Get rental items to update dress availability
-        std::vector<RentalItem> items = getRentalItems(rentalID);
+        std::vector<RentalItem> items = this->getRentalItems(rentalID);
         DressManager dm;
         for (const auto& item : items) {
             dm.updateAvailability(item.DressID, "Available");
@@ -496,7 +510,7 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
 
 bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, const std::string& returnDate) {
     try {
-        Rental* rental = getRentalByID(rentalID);
+        Rental* rental = this->getRentalByID(rentalID);
         if (!rental) {
             delete rental;
             return false;
@@ -511,7 +525,7 @@ bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, 
         conn->setAutoCommit(false);
         
         // Get rental items to update dress availability
-        std::vector<RentalItem> items = getRentalItems(rentalID);
+        std::vector<RentalItem> items = this->getRentalItems(rentalID);
         DressManager dm;
         
         if (status == "Returned") {
@@ -527,7 +541,7 @@ bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, 
             
             // Calculate late fee
             if (!returnDate.empty()) {
-                calculateLateFee(rentalID);
+                this->calculateLateFee(rentalID);
             }
             
             // Update dress availability to Available
@@ -632,15 +646,15 @@ void RentalManager::displayRental(const Rental& rental) {
 }
 
 void RentalManager::displayRentalDetails(int rentalID) {
-    Rental* rental = getRentalByID(rentalID);
+    Rental* rental = this->getRentalByID(rentalID);
     if (!rental) {
         std::cout << "Rental not found." << std::endl;
         return;
     }
     
-    displayRental(*rental);
+    this->displayRental(*rental);
     
-    std::vector<RentalItem> items = getRentalItems(rentalID);
+    std::vector<RentalItem> items = this->getRentalItems(rentalID);
     if (!items.empty()) {
         std::cout << std::endl;
         UIColors::printCentered("Rental Items", SCREEN_WIDTH, UIColors::BOLD + UIColors::CYAN);
