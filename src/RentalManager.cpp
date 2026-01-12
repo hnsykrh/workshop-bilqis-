@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ctime>
 #include <algorithm>
+#include <cmath>
 
 std::string RentalManager::calculateDueDate(const std::string& rentalDate, int duration) {
     std::tm tm = {};
@@ -190,6 +191,21 @@ Rental* RentalManager::getRentalByID(int rentalID) {
             rental->Status = res->getString("Status");
             delete pstmt;
             delete res;
+            
+            // Automatically calculate and update late fee if rental is active and overdue
+            if (rental->Status == "Active") {
+                calculateLateFee(rentalID);
+                // Re-fetch to get updated late fee
+                pstmt = conn->prepareStatement("SELECT LateFee FROM Rentals WHERE RentalID = ?");
+                pstmt->setInt(1, rentalID);
+                res = pstmt->executeQuery();
+                if (res && res->next()) {
+                    rental->LateFee = res->getDouble("LateFee");
+                }
+                delete pstmt;
+                if (res) delete res;
+            }
+            
             return rental;
         }
         delete pstmt;
@@ -252,6 +268,33 @@ std::vector<Rental> RentalManager::getActiveRentals() {
             rental.TotalAmount = res->getDouble("TotalAmount");
             rental.LateFee = res->getDouble("LateFee");
             rental.Status = res->getString("Status");
+            
+            // Automatically calculate and update late fee if overdue
+            std::tm dueTm = {};
+            std::istringstream ss(rental.DueDate);
+            ss >> std::get_time(&dueTm, "%Y-%m-%d");
+            if (!ss.fail()) {
+                std::time_t dueTime = std::mktime(&dueTm);
+                std::time_t now = std::time(nullptr);
+                if (now > dueTime) {
+                    calculateLateFee(rental.RentalID);
+                    // Re-fetch the updated late fee
+                    sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+                    if (conn) {
+                        sql::PreparedStatement* pstmt = conn->prepareStatement(
+                            "SELECT LateFee FROM Rentals WHERE RentalID = ?"
+                        );
+                        pstmt->setInt(1, rental.RentalID);
+                        sql::ResultSet* feeRes = pstmt->executeQuery();
+                        if (feeRes && feeRes->next()) {
+                            rental.LateFee = feeRes->getDouble("LateFee");
+                        }
+                        delete pstmt;
+                        if (feeRes) delete feeRes;
+                    }
+                }
+            }
+            
             rentals.push_back(rental);
         }
         if (res) delete res;
@@ -278,6 +321,25 @@ std::vector<Rental> RentalManager::getOverdueRentals() {
             rental.TotalAmount = res->getDouble("TotalAmount");
             rental.LateFee = res->getDouble("LateFee");
             rental.Status = res->getString("Status");
+            
+            // Automatically calculate and update late fee for overdue rentals
+            calculateLateFee(rental.RentalID);
+            
+            // Re-fetch the updated late fee
+            sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+            if (conn) {
+                sql::PreparedStatement* pstmt = conn->prepareStatement(
+                    "SELECT LateFee FROM Rentals WHERE RentalID = ?"
+                );
+                pstmt->setInt(1, rental.RentalID);
+                sql::ResultSet* feeRes = pstmt->executeQuery();
+                if (feeRes && feeRes->next()) {
+                    rental.LateFee = feeRes->getDouble("LateFee");
+                }
+                delete pstmt;
+                if (feeRes) delete feeRes;
+            }
+            
             rentals.push_back(rental);
         }
         if (res) delete res;
@@ -329,6 +391,11 @@ bool RentalManager::calculateLateFee(int rentalID) {
         std::istringstream ss(rental->DueDate);
         ss >> std::get_time(&dueTm, "%Y-%m-%d");
         
+        if (ss.fail()) {
+            delete rental;
+            return false;
+        }
+        
         std::time_t dueTime = std::mktime(&dueTm);
         std::time_t compareTime;
         
@@ -337,32 +404,44 @@ bool RentalManager::calculateLateFee(int rentalID) {
             std::tm returnTm = {};
             std::istringstream returnSs(rental->ReturnDate);
             returnSs >> std::get_time(&returnTm, "%Y-%m-%d");
+            if (returnSs.fail()) {
+                delete rental;
+                return false;
+            }
             compareTime = std::mktime(&returnTm);
         } else {
             compareTime = std::time(nullptr);
         }
         
+        double lateFee = 0.0;
         if (compareTime > dueTime) {
-            double daysLate = std::difftime(compareTime, dueTime) / (24 * 60 * 60);
-            double lateFee = daysLate * 10.0; // RM 10 per day
-            
-            sql::Connection* conn = DatabaseManager::getInstance().getConnection();
-            if (!conn) {
-                std::cerr << "Error: Database connection failed." << std::endl;
-                delete rental;
-                return false;
-            }
-            sql::PreparedStatement* pstmt = conn->prepareStatement(
-                "UPDATE Rentals SET LateFee = ? WHERE RentalID = ?"
-            );
-            pstmt->setDouble(1, lateFee);
-            pstmt->setInt(2, rentalID);
-            pstmt->executeUpdate();
-            delete pstmt;
+            // Calculate days late and round UP (ceiling) - even 1 hour late = 1 full day
+            double secondsLate = std::difftime(compareTime, dueTime);
+            double daysLate = secondsLate / (24 * 60 * 60);
+            // Round up to nearest day (ceiling)
+            int daysLateInt = static_cast<int>(std::ceil(daysLate));
+            lateFee = daysLateInt * 10.0; // RM 10 per day
         }
+        
+        sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+        if (!conn) {
+            std::cerr << "Error: Database connection failed." << std::endl;
+            delete rental;
+            return false;
+        }
+        sql::PreparedStatement* pstmt = conn->prepareStatement(
+            "UPDATE Rentals SET LateFee = ? WHERE RentalID = ?"
+        );
+        pstmt->setDouble(1, lateFee);
+        pstmt->setInt(2, rentalID);
+        pstmt->executeUpdate();
+        delete pstmt;
         delete rental;
         return true;
     } catch (sql::SQLException& e) {
+        std::cerr << "Error calculating late fee: " << e.what() << std::endl;
+        return false;
+    } catch (const std::exception& e) {
         std::cerr << "Error calculating late fee: " << e.what() << std::endl;
         return false;
     }
@@ -381,7 +460,16 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
         }
         conn->setAutoCommit(false);
         
-        // Calculate late fee
+        // Update rental status with return date FIRST
+        sql::PreparedStatement* pstmt = conn->prepareStatement(
+            "UPDATE Rentals SET ReturnDate = ?, Status = 'Returned' WHERE RentalID = ?"
+        );
+        pstmt->setString(1, returnDate);
+        pstmt->setInt(2, rentalID);
+        pstmt->executeUpdate();
+        delete pstmt;
+        
+        // Calculate late fee AFTER setting return date (so it uses the actual return date)
         calculateLateFee(rentalID);
         
         // Get rental items to update dress availability
@@ -390,15 +478,6 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
         for (const auto& item : items) {
             dm.updateAvailability(item.DressID, "Available");
         }
-        
-        // Update rental status
-        sql::PreparedStatement* pstmt = conn->prepareStatement(
-            "UPDATE Rentals SET ReturnDate = ?, Status = 'Returned' WHERE RentalID = ?"
-        );
-        pstmt->setString(1, returnDate);
-        pstmt->setInt(2, rentalID);
-        pstmt->executeUpdate();
-        delete pstmt;
         
         conn->commit();
         conn->setAutoCommit(true);
