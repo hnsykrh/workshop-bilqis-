@@ -852,12 +852,13 @@ void rentalManagementMenu() {
         UIColors::printMenuOption(4, "View Rental Details");
         UIColors::printMenuOption(5, "Return Rental");
         UIColors::printMenuOption(6, "View Customer Rentals");
+        UIColors::printMenuOption(7, "Change Rental Status");
         std::cout << std::endl;
         UIColors::printMenuOption(0, "Back to Main Menu");
         UIColors::printSeparator(SCREEN_WIDTH);
         
         UIColors::printCenteredInput("Enter your choice: ", SCREEN_WIDTH, UIColors::WHITE);
-        choice = InputValidator::getInt("", 0, 6);
+        choice = InputValidator::getInt("", 0, 7);
         
         if (choice == 0) break;
         

@@ -196,14 +196,14 @@ Rental* RentalManager::getRentalByID(int rentalID) {
             if (rental->Status == "Active") {
                 calculateLateFee(rentalID);
                 // Re-fetch to get updated late fee
-                pstmt = conn->prepareStatement("SELECT LateFee FROM Rentals WHERE RentalID = ?");
-                pstmt->setInt(1, rentalID);
-                res = pstmt->executeQuery();
-                if (res && res->next()) {
-                    rental->LateFee = res->isNull("LateFee") ? 0.0 : res->getDouble("LateFee");
+                sql::PreparedStatement* feePstmt = conn->prepareStatement("SELECT LateFee FROM Rentals WHERE RentalID = ?");
+                feePstmt->setInt(1, rentalID);
+                sql::ResultSet* feeRes = feePstmt->executeQuery();
+                if (feeRes && feeRes->next()) {
+                    rental->LateFee = feeRes->isNull("LateFee") ? 0.0 : feeRes->getDouble("LateFee");
                 }
-                delete pstmt;
-                if (res) delete res;
+                delete feePstmt;
+                if (feeRes) delete feeRes;
             }
             
             return rental;
@@ -485,6 +485,96 @@ bool RentalManager::returnRental(int rentalID, const std::string& returnDate) {
         return true;
     } catch (sql::SQLException& e) {
         std::cerr << "Error returning rental: " << e.what() << std::endl;
+        try {
+            sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+            if (conn && !conn->isClosed()) {
+                conn->rollback();
+                conn->setAutoCommit(true);
+            }
+        } catch (...) {}
+        return false;
+    }
+}
+
+bool RentalManager::updateRentalStatus(int rentalID, const std::string& status, const std::string& returnDate) {
+    try {
+        Rental* rental = getRentalByID(rentalID);
+        if (!rental) {
+            delete rental;
+            return false;
+        }
+        
+        sql::Connection* conn = DatabaseManager::getInstance().getConnection();
+        if (!conn) {
+            std::cerr << "Error: Database connection failed." << std::endl;
+            delete rental;
+            return false;
+        }
+        conn->setAutoCommit(false);
+        
+        // Get rental items to update dress availability
+        std::vector<RentalItem> items = getRentalItems(rentalID);
+        DressManager dm;
+        
+        if (status == "Returned") {
+            // Marking as returned
+            sql::PreparedStatement* pstmt = conn->prepareStatement(
+                "UPDATE Rentals SET Status = ?, ReturnDate = ? WHERE RentalID = ?"
+            );
+            pstmt->setString(1, status);
+            pstmt->setString(2, returnDate.empty() ? rental->ReturnDate : returnDate);
+            pstmt->setInt(3, rentalID);
+            pstmt->executeUpdate();
+            delete pstmt;
+            
+            // Calculate late fee
+            if (!returnDate.empty()) {
+                calculateLateFee(rentalID);
+            }
+            
+            // Update dress availability to Available
+            for (const auto& item : items) {
+                dm.updateAvailability(item.DressID, "Available");
+            }
+        } else if (status == "Active") {
+            // Changing back to Active
+            sql::PreparedStatement* pstmt = conn->prepareStatement(
+                "UPDATE Rentals SET Status = ?, ReturnDate = NULL WHERE RentalID = ?"
+            );
+            pstmt->setString(1, status);
+            pstmt->setInt(2, rentalID);
+            pstmt->executeUpdate();
+            delete pstmt;
+            
+            // Reset late fee
+            sql::PreparedStatement* feePstmt = conn->prepareStatement(
+                "UPDATE Rentals SET LateFee = 0.0 WHERE RentalID = ?"
+            );
+            feePstmt->setInt(1, rentalID);
+            feePstmt->executeUpdate();
+            delete feePstmt;
+            
+            // Update dress availability to Rented
+            for (const auto& item : items) {
+                dm.updateAvailability(item.DressID, "Rented");
+            }
+        } else {
+            // Other status updates
+            sql::PreparedStatement* pstmt = conn->prepareStatement(
+                "UPDATE Rentals SET Status = ? WHERE RentalID = ?"
+            );
+            pstmt->setString(1, status);
+            pstmt->setInt(2, rentalID);
+            pstmt->executeUpdate();
+            delete pstmt;
+        }
+        
+        conn->commit();
+        conn->setAutoCommit(true);
+        delete rental;
+        return true;
+    } catch (sql::SQLException& e) {
+        std::cerr << "Error updating rental status: " << e.what() << std::endl;
         try {
             sql::Connection* conn = DatabaseManager::getInstance().getConnection();
             if (conn && !conn->isClosed()) {

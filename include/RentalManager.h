@@ -35,6 +35,7 @@ public:
     std::vector<Rental> getOverdueRentals();
     std::vector<RentalItem> getRentalItems(int rentalID);
     bool returnRental(int rentalID, const std::string& returnDate);
+    bool updateRentalStatus(int rentalID, const std::string& status, const std::string& returnDate = "");
     bool calculateLateFee(int rentalID);
     bool canRentDress(int dressID, const std::string& startDate, const std::string& endDate);
     std::string calculateDueDate(const std::string& rentalDate, int duration);
